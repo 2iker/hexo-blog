@@ -1,0 +1,87 @@
+# NexT Theme Config
+# https://theme-next.js.org/docs/
+
+# Schemes
+scheme: Gemini
+
+# Dark Mode
+darkmode: true
+
+# Menu (keys are auto-translated with zh-CN)
+menu:
+  home: / || fa fa-home
+  archives: /archives/ || fa fa-archive
+  categories: /categories/ || fa fa-th
+  tags: /tags/ || fa fa-tags
+  about: /about/ || fa fa-user
+
+menu_settings:
+  icons: true
+  badges: false
+
+# Sidebar
+sidebar:
+  position: left
+  width_expanded: 320
+  width_dual_column: 240
+  display: post
+
+# Social links
+social:
+  GitHub: https://github.com/2iker || fab fa-github
+
+# Table of Contents
+toc:
+  enable: true
+  number: true
+  wrap: false
+  expand_all: false
+  max_depth: 6
+
+# Codeblock
+codeblock:
+  theme:
+    light: default
+    dark: stackoverflow-dark
+  copy_button:
+    enable: true
+    style: flat
+  fold:
+    enable: false
+  language: true
+
+back2top:
+  enable: true
+  sidebar: false
+  scrollpercent: true
+
+# Math (KaTeX is rendered at build time by markdown-it-katex;
+# enabling katex here only loads the KaTeX stylesheet)
+math:
+  every_page: true
+  mathjax:
+    enable: false
+  katex:
+    enable: true
+
+# Mermaid (native NexT tag plugin)
+mermaid:
+  enable: true
+  theme:
+    light: default
+    dark: dark
+
+# Local Search
+local_search:
+  enable: true
+  top_n_per_article: 1
+  unescape: false
+  preload: true
+
+# Vendors (katex CSS matches the version used by markdown-it-katex)
+vendors:
+  katex: https://cdn.jsdelivr.net/npm/katex@0.18.1/dist/katex.min.css
+
+# Footer
+footer:
+  since: 2026
