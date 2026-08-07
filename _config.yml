@@ -9,7 +9,7 @@ description: '记录技术、生活与思考的个人博客'
 keywords:
 author: 博主
 language: zh-CN
-timezone: 'Asia/Shanghai'
+timezone: ''
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
