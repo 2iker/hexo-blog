@@ -85,3 +85,8 @@ vendors:
 # Footer
 footer:
   since: 2026
+  powered: false
+
+# Custom styles (sticky footer)
+custom_file_path:
+  style: source/_data/styles.styl
