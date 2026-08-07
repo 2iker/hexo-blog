@@ -1,0 +1,47 @@
+#---------------------------
+# Fluid Theme Custom Config
+#---------------------------
+
+navbar:
+  blog_title: "我的博客"
+  menu:
+    - { key: "home", link: "/", icon: "iconfont icon-home-fill" }
+    - { key: "archive", link: "/archives/", icon: "iconfont icon-archive-fill" }
+    - { key: "category", link: "/categories/", icon: "iconfont icon-category-fill" }
+    - { key: "tag", link: "/tags/", icon: "iconfont icon-tags-fill" }
+    - { key: "about", link: "/about/", icon: "iconfont icon-user-fill" }
+
+dark_mode:
+  enable: true
+  default: auto
+
+index:
+  slogan:
+    enable: true
+    text: "记录技术、生活与思考的个人博客"
+
+post:
+  toc:
+    enable: true
+    expand_all: true
+    placement: right
+  math:
+    enable: true
+    engine: katex
+  mermaid:
+    enable: true
+    options: { theme: 'default' }
+  code:
+    copy_btn: true
+
+search:
+  enable: true
+  path: /local-search.xml
+  generate_path: /local-search.xml
+  field: post
+  content: true
+
+about:
+  enable: true
+  name: "博主"
+  intro: "记录技术、生活与思考的个人博客"
