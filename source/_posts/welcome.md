@@ -53,13 +53,13 @@ console.log(greeting("world"));
 
 ### 流程图（Mermaid）
 
-```mermaid
+{% mermaid %}
 graph TD
   A[写文章] --> B{是否发布?}
   B -- 是 --> C[首页展示]
   B -- 否 --> D[保存为草稿]
   C --> E[读者评论]
-```
+{% endmermaid %}
 
 ### 数学公式（LaTeX）
 

@@ -1,6 +1,6 @@
 ---
 title: 关于
-layout: about
+type: about
 ---
 
 个人博客，记录技术、生活与思考。

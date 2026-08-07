@@ -1,0 +1,72 @@
+nav:
+  display_title: true
+  display_post_title: true
+  fixed: true
+
+menu:
+  首页: / || fas fa-home
+  归档: /archives/ || fas fa-archive
+  分类: /categories/ || fas fa-folder-open
+  标签: /tags/ || fas fa-tags
+  关于: /about/ || fas fa-user
+
+code_blocks:
+  theme: light
+  macStyle: true
+  copy: true
+  language: true
+  shrink: false
+
+toc:
+  post: true
+  page: false
+  number: true
+  expand: false
+  scroll_percent: true
+
+darkmode:
+  enable: true
+  button: true
+
+math:
+  use:
+  per_page: true
+
+inject:
+  head:
+    - <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.18.1/dist/katex.min.css">
+
+search:
+  use: local_search
+  local_search:
+    preload: true
+    top_n_per_article: 1
+    unescape: false
+
+mermaid:
+  enable: true
+  code_write: true
+  theme:
+    light: default
+    dark: dark
+  open_in_new_tab: true
+
+footer:
+  owner:
+    enable: true
+    since: 2026
+
+aside:
+  enable: true
+  hide: false
+  button: true
+  mobile: true
+  position: right
+
+wordcount:
+  enable: false
+
+busuanzi:
+  site_uv: false
+  site_pv: false
+  page_pv: false
