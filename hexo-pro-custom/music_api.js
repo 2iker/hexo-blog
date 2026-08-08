@@ -22,39 +22,29 @@ function saveMusicData(hexo, data) {
   fs.writeFileSync(getMusicDataPath(hexo), JSON.stringify(data, null, 2), 'utf8');
 }
 
-// Sync music_data.json to source/js/sidebar-music.js
 function syncToSidebarMusic(hexo, data, root) {
   const tracksFile = path.join(hexo.base_dir, 'source', 'js', 'sidebar-music.js');
   if (!fs.existsSync(tracksFile)) return;
   const content = fs.readFileSync(tracksFile, 'utf8');
-  // Build tracks array from music data
+  function formatUrl(url) {
+    if (!url) return "''";
+    if (url.startsWith('http')) return "'" + url + "'";
+    let rel = url;
+    if (rel.startsWith(root)) rel = rel.substring(root.length);
+    if (rel.startsWith('/')) rel = rel.substring(1);
+    return "root + '" + rel + "'";
+  }
   const tracks = data.songs.map(s => {
-    let url = s.url;
-    let cover = s.cover || '';
-    // For local files, use root + relative path
-    if (url.startsWith('http')) {
-      url = "'" + url + "'";
-    } else {
-      const relPath = url.startsWith('/') ? url.substring(1) : url;
-      url = "root + '" + relPath + "'";
-    }
-    if (cover.startsWith('http')) {
-      cover = "'" + cover + "'";
-    } else if (cover) {
-      const relCover = cover.startsWith('/') ? cover.substring(1) : cover;
-      cover = "root + '" + relCover + "'";
-    } else {
-      cover = "''";
-    }
-    return "    { name: '" + s.title.replace(/'/g, "\\'") + "', artist: '" + (s.artist || '').replace(/'/g, "\\'") + "', url: " + url + ", cover: " + cover + " }";
+    const url = formatUrl(s.url);
+    const cover = formatUrl(s.cover);
+    return "    { name: '" + s.title.replace(/'/g, "\\\\'") + "', artist: '" + (s.artist || '').replace(/'/g, "\\\\'") + "', url: " + url + ", cover: " + cover + " }";
   });
-  const newTracks = "  var tracks = [\n" + tracks.join(",\n") + "\n  ]";
-  // Replace the tracks array
-  const newContent = content.replace(/var tracks = \[[\s\S]*?\]/, newTracks);
+  const newTracks = "  var tracks = [\\n" + tracks.join(",\\n") + "\\n  ]";
+  const newContent = content.replace(/var tracks = \\[[\\s\\S]*?\\]/, newTracks);
   if (newContent !== content) {
     fs.writeFileSync(tracksFile, newContent, 'utf8');
   }
-}
+}}
 
 // Parse tracks metadata from source/js/sidebar-music.js
 function parseSidebarTracks(hexo, root) {
