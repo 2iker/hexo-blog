@@ -289,7 +289,7 @@ function playSong(id){
     return;
   }
   currentSong=song;
-  audio.src='/hexo-blog/music/'+song.filename;
+  audio.src=song.url;
   audio.play();
   document.getElementById('playerBar').classList.add('active');
   document.getElementById('playerTitle').textContent=song.title;
