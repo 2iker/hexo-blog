@@ -57,16 +57,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 </div>
 
 <div class="container">
-  <div class="card">
-    <div class="card-title">
-      <span id="songCount">歌曲列表</span>
-      <button class="btn btn-primary" onclick="showForm()">+ 添加歌曲</button>
-    </div>
-    <div id="songList" class="song-list">
-      <div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">加载中...</div></div>
-    </div>
-  </div>
-
   <div class="card" id="formCard" style="display:none">
     <div class="card-title" id="formTitle">添加歌曲</div>
     <input type="hidden" id="formId">
@@ -93,6 +83,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
       <button class="btn btn-default" onclick="hideForm()">取消</button>
       <button class="btn btn-primary" id="formSubmitBtn" onclick="submitForm()">保存</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <span id="songCount">歌曲列表</span>
+      <button class="btn btn-primary" onclick="showForm()">+ 添加歌曲</button>
+    </div>
+    <div id="songList" class="song-list">
+      <div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">加载中...</div></div>
     </div>
   </div>
 </div>
@@ -143,13 +143,13 @@ function renderSongs(){
   el.innerHTML=songs.map(s=>{
     const coverHtml=s.cover?'<div class="song-cover"><img src="'+esc(s.cover)+'" onerror="this.parentElement.innerHTML=\'♪\'"></div>':'<div class="song-cover">♪</div>';
     const isPlaying=currentSong&&currentSong.id===s.id&&!audio.paused;
-    const playBtn=isPlaying?'<button class="btn btn-primary btn-sm" onclick="playSong(\''+s.id+'\')">⏸</button>':'<button class="btn btn-default btn-sm" onclick="playSong(\''+s.id+'\')">▶</button>';
+    const playBtn=isPlaying?'<button class="btn btn-primary btn-sm" onclick="playSong(\''+s.id+'\')">暂停</button>':'<button class="btn btn-default btn-sm" onclick="playSong(\''+s.id+'\')">播放</button>';
     return '<div class="song-item">'+coverHtml+
       '<div class="song-info"><div class="song-title">'+esc(s.title)+'</div>'+
       '<div class="song-meta"><span>'+(s.artist?esc(s.artist):'未知歌手')+'</span><span>'+esc(s.filename)+'</span></div></div>'+
       '<div class="song-actions">'+playBtn+
-      '<button class="btn btn-default btn-sm" onclick="editSong(\''+s.id+'\')">✏️</button>'+
-      '<button class="btn btn-danger btn-sm" onclick="deleteSong(\''+s.id+'\')">🗑️</button>'+
+      '<button class="btn btn-default btn-sm" onclick="editSong(\''+s.id+'\')">编辑</button>'+
+      '<button class="btn btn-danger btn-sm" onclick="deleteSong(\''+s.id+'\')">删除</button>'+
       '</div></div>';
   }).join('');
 }
