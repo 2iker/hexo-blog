@@ -94,3 +94,10 @@ theme: next
 # Deployment
 deploy:
   type: ''
+
+# Hexo Admin (后台文章管理界面，本地访问 /admin/)
+admin:
+  username: admin
+  password_hash: ''
+  secret: ''
+  deployCommand: hexo generate && hexo deploy
