@@ -19,9 +19,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .btn-danger{background:#fff;color:#ff4d4f;border:1px solid #ff4d4f}.btn-danger:hover{background:#ff4d4f;color:#fff}
 .btn-default{background:#fff;color:#666;border:1px solid #d9d9d9}.btn-default:hover{border-color:#1890ff;color:#1890ff}
 .btn-sm{padding:4px 10px;font-size:12px}
-.upload-zone{border:2px dashed #d9d9d9;border-radius:8px;padding:32px;text-align:center;cursor:pointer;transition:all .2s}
-.upload-zone:hover,.upload-zone.dragover{border-color:#1890ff;background:#e6f7ff}
-.upload-zone p{color:#999;font-size:13px;margin-top:6px}
 .song-list{display:flex;flex-direction:column;gap:8px}
 .song-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:#fafafa;border-radius:8px;transition:all .15s;border:1px solid transparent}
 .song-item:hover{background:#f0f5ff;border-color:#d6e4ff}
@@ -34,24 +31,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .empty{text-align:center;padding:48px 20px;color:#bbb}
 .empty-icon{font-size:48px;margin-bottom:12px}
 .empty-text{font-size:14px}
-.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center}
-.modal-overlay.active{display:flex}
-.modal{background:#fff;border-radius:12px;padding:24px;width:440px;max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,.15)}
-.modal h3{font-size:16px;margin-bottom:20px}
-.form-group{margin-bottom:14px}
-.form-group label{display:block;font-size:13px;color:#666;margin-bottom:5px;font-weight:500}
-.form-group input{width:100%;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px}
-.form-group input:focus{outline:none;border-color:#1890ff;box-shadow:0 0 0 2px rgba(24,144,255,.15)}
-.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
-.toast{position:fixed;top:24px;right:24px;padding:10px 20px;border-radius:6px;color:#fff;font-size:13px;z-index:2000;animation:slideIn .3s}
-.toast-success{background:#52c41a}.toast-error{background:#ff4d4f}
-@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
-.player-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e8e8e8;padding:10px 24px;display:none;align-items:center;gap:14px;z-index:100}
-.player-bar.active{display:flex}
-.progress-wrap{flex:1;display:flex;align-items:center;gap:10px}
-.progress-bar{flex:1;height:4px;background:#e8e8e8;border-radius:2px;cursor:pointer}
-.progress-fill{height:100%;background:#1890ff;border-radius:2px;transition:width .1s}
-.time-text{font-size:11px;color:#999;min-width:70px;text-align:right}
 .form-group{margin-bottom:14px}
 .form-label{display:block;font-size:13px;color:#666;margin-bottom:5px;font-weight:500}
 .form-input{width:100%;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;box-sizing:border-box}
@@ -60,6 +39,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .upload-file-area:hover{border-color:#1890ff;background:#e6f7ff}
 .upload-file-area.has-file{border-color:#52c41a;background:#f6ffed}
 #uploadFileInfo{font-size:13px;color:#999}
+.player-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e8e8e8;padding:10px 24px;display:none;align-items:center;gap:14px;z-index:100}
+.player-bar.active{display:flex}
+.progress-wrap{flex:1;display:flex;align-items:center;gap:10px}
+.progress-bar{flex:1;height:4px;background:#e8e8e8;border-radius:2px;cursor:pointer}
+.progress-fill{height:100%;background:#1890ff;border-radius:2px;transition:width .1s}
+.time-text{font-size:11px;color:#999;min-width:70px;text-align:right}
+.toast{position:fixed;top:24px;right:24px;padding:10px 20px;border-radius:6px;color:#fff;font-size:13px;z-index:2000;animation:slideIn .3s}
+.toast-success{background:#52c41a}.toast-error{background:#ff4d4f}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
 </style>
 </head>
 <body>
@@ -72,40 +60,39 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
   <div class="card">
     <div class="card-title">
       <span id="songCount">歌曲列表</span>
-      <button class="btn btn-primary" onclick="showUploadForm()">+ 上传歌曲</button>
+      <button class="btn btn-primary" onclick="showForm()">+ 添加歌曲</button>
     </div>
     <div id="songList" class="song-list">
       <div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">加载中...</div></div>
     </div>
   </div>
 
-  <div class="card" id="uploadCard" style="display:none">
-    <div class="card-title">上传新歌曲</div>
-    <div class="form-group"><label class="form-label">歌曲标题 *</label><input type="text" id="uploadTitle" class="form-input" placeholder="输入歌曲标题"></div>
-    <div class="form-group"><label class="form-label">歌手</label><input type="text" id="uploadArtist" class="form-input" placeholder="输入歌手名称"></div>
+  <div class="card" id="formCard" style="display:none">
+    <div class="card-title" id="formTitle">添加歌曲</div>
+    <input type="hidden" id="formId">
+    <div class="form-group"><label class="form-label">歌曲标题 *</label><input type="text" id="formSongTitle" class="form-input" placeholder="输入歌曲标题"></div>
+    <div class="form-group"><label class="form-label">歌手</label><input type="text" id="formArtist" class="form-input" placeholder="输入歌手名称"></div>
     <div class="form-group"><label class="form-label">封面图片</label>
       <div style="display:flex;gap:8px;align-items:center">
-        <input type="text" id="uploadCover" class="form-input" placeholder="输入图片 URL" style="flex:1">
+        <input type="text" id="formCover" class="form-input" placeholder="输入图片 URL" style="flex:1">
         <span style="color:#999;font-size:12px">或</span>
         <label class="btn btn-default btn-sm" style="cursor:pointer;margin:0">
           📁 本地上传
-          <input type="file" id="uploadCoverFile" accept="image/*" style="display:none">
+          <input type="file" id="formCoverFile" accept="image/*" style="display:none">
         </label>
       </div>
       <div id="coverPreview" style="margin-top:8px;display:none"><img id="coverPreviewImg" style="width:60px;height:60px;border-radius:6px;object-fit:cover"></div>
     </div>
     <div class="form-group"><label class="form-label">MP3 文件</label>
-      <div style="display:flex;gap:8px;align-items:center">
-        <div class="upload-file-area" id="uploadFileArea" onclick="document.getElementById('uploadFileInput').click()" style="flex:1">
-          <div id="uploadFileInfo">📁 点击选择 MP3 文件</div>
-          <input type="file" id="uploadFileInput" accept="audio/*" style="display:none">
-        </div>
+      <div class="upload-file-area" id="uploadFileArea" onclick="document.getElementById('formFileInput').click()">
+        <div id="uploadFileInfo">📁 点击选择 MP3 文件</div>
+        <input type="file" id="formFileInput" accept="audio/*" style="display:none">
       </div>
     </div>
-    <div class="form-group"><label class="form-label">或填写音乐链接</label><input type="text" id="uploadUrl" class="form-input" placeholder="https://example.com/song.mp3"></div>
+    <div class="form-group"><label class="form-label">或填写音乐链接</label><input type="text" id="formUrl" class="form-input" placeholder="https://example.com/song.mp3"></div>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
-      <button class="btn btn-default" onclick="hideUploadForm()">取消</button>
-      <button class="btn btn-primary" id="uploadSubmitBtn" onclick="submitUpload()">上传</button>
+      <button class="btn btn-default" onclick="hideForm()">取消</button>
+      <button class="btn btn-primary" id="formSubmitBtn" onclick="submitForm()">保存</button>
     </div>
   </div>
 </div>
@@ -125,20 +112,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
   <button class="btn btn-default btn-sm" onclick="playerStop()">✕</button>
 </div>
 
-<div class="modal-overlay" id="editModal">
-  <div class="modal">
-    <h3>编辑歌曲信息</h3>
-    <input type="hidden" id="editId">
-    <div class="form-group"><label>歌曲标题</label><input type="text" id="editTitle" placeholder="输入歌曲标题"></div>
-    <div class="form-group"><label>歌手</label><input type="text" id="editArtist" placeholder="输入歌手名称"></div>
-    <div class="form-group"><label>封面图片 URL</label><input type="text" id="editCover" placeholder="https://example.com/cover.jpg"></div>
-    <div class="modal-actions">
-      <button class="btn btn-default" onclick="closeModal()">取消</button>
-      <button class="btn btn-primary" onclick="saveEdit()">保存</button>
-    </div>
-  </div>
-</div>
-
 <audio id="audio" style="display:none"></audio>
 
 <script>
@@ -147,6 +120,8 @@ const API_BASE = '/hexo-blog/hexopro/api/music';
 let songs = [];
 let audio = document.getElementById('audio');
 let currentSong = null;
+let editFile = null;
+let editCoverFile = null;
 function getToken(){return localStorage.getItem('hexoProToken')||'';}
 function toast(msg,type){const el=document.createElement('div');el.className='toast toast-'+type;el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),3000);}
 function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
@@ -158,144 +133,136 @@ async function loadSongs(){
     const json=await res.json();
     songs=json.data||[];
     renderSongs();
-  }catch(e){document.getElementById('songList').innerHTML='<div class="empty"><div class="empty-icon">❌</div><div class="empty-text">加载失败: '+esc(e.message)+'</div></div>';}
+  }catch(e){document.getElementById('songList').innerHTML='<div class="empty"><div class="empty-icon">❌</div><div class="empty-text">加载失败</div></div>';}
 }
 
 function renderSongs(){
   const el=document.getElementById('songList');
   document.getElementById('songCount').textContent='歌曲列表 ('+songs.length+')';
-  if(!songs.length){el.innerHTML='<div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">暂无歌曲，上传 MP3 文件开始管理</div></div>';return;}
+  if(!songs.length){el.innerHTML='<div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">暂无歌曲，点击上方按钮添加</div></div>';return;}
   el.innerHTML=songs.map(s=>{
-    const coverHtml=s.cover
-      ?'<img src="'+esc(s.cover)+'" onerror="this.parentElement.innerHTML=\'♪\'">'
-      :'♪';
+    const coverHtml=s.cover?'<div class="song-cover"><img src="'+esc(s.cover)+'" onerror="this.parentElement.innerHTML=\'♪\'"></div>':'<div class="song-cover">♪</div>';
     const isPlaying=currentSong&&currentSong.id===s.id&&!audio.paused;
-    const playBtn=isPlaying
-      ?'<button class="btn btn-primary btn-sm" onclick="playSong(\''+s.id+'\')">⏸ 暂停</button>'
-      :'<button class="btn btn-default btn-sm" onclick="playSong(\''+s.id+'\')">▶ 播放</button>';
-    return '<div class="song-item">'+
-      '<div class="song-cover">'+coverHtml+'</div>'+
+    const playBtn=isPlaying?'<button class="btn btn-primary btn-sm" onclick="playSong(\''+s.id+'\')">⏸</button>':'<button class="btn btn-default btn-sm" onclick="playSong(\''+s.id+'\')">▶</button>';
+    return '<div class="song-item">'+coverHtml+
       '<div class="song-info"><div class="song-title">'+esc(s.title)+'</div>'+
       '<div class="song-meta"><span>'+(s.artist?esc(s.artist):'未知歌手')+'</span><span>'+esc(s.filename)+'</span></div></div>'+
-      '<div class="song-actions">'+
-      playBtn+
-      '<button class="btn btn-default btn-sm" onclick="editSong(\''+s.id+'\')">✏️ 编辑</button>'+
-      '<button class="btn btn-danger btn-sm" onclick="deleteSong(\''+s.id+'\')">🗑️ 删除</button>'+
+      '<div class="song-actions">'+playBtn+
+      '<button class="btn btn-default btn-sm" onclick="editSong(\''+s.id+'\')">✏️</button>'+
+      '<button class="btn btn-danger btn-sm" onclick="deleteSong(\''+s.id+'\')">🗑️</button>'+
       '</div></div>';
   }).join('');
 }
 
-// Upload
-let uploadFile=null;
-
-function showUploadForm(){
-  document.getElementById('uploadCard').style.display='block';
-  document.getElementById('uploadTitle').value='';
-  document.getElementById('uploadArtist').value='';
-  document.getElementById('uploadCover').value='';
-  uploadFile=null;
+// Form
+function showForm(id){
+  document.getElementById('formCard').style.display='block';
+  document.getElementById('formId').value='';
+  document.getElementById('formSongTitle').value='';
+  document.getElementById('formArtist').value='';
+  document.getElementById('formCover').value='';
+  document.getElementById('formUrl').value='';
+  editFile=null;editCoverFile=null;
   document.getElementById('uploadFileInfo').textContent='📁 点击选择 MP3 文件';
   document.getElementById('uploadFileArea').classList.remove('has-file');
-  document.getElementById('uploadTitle').focus();
+  document.getElementById('coverPreview').style.display='none';
+  document.getElementById('formTitle').textContent='添加歌曲';
+  document.getElementById('formSongTitle').focus();
 }
-function hideUploadForm(){
-  document.getElementById('uploadCard').style.display='none';
-  uploadFile=null;
+function hideForm(){document.getElementById('formCard').style.display='none';}
+
+function editSong(id){
+  const s=songs.find(x=>x.id===id);if(!s)return;
+  showForm();
+  document.getElementById('formId').value=id;
+  document.getElementById('formSongTitle').value=s.title||'';
+  document.getElementById('formArtist').value=s.artist||'';
+  document.getElementById('formCover').value=s.cover||'';
+  document.getElementById('formUrl').value=s.url||'';
+  document.getElementById('formTitle').textContent='编辑歌曲';
 }
 
-document.getElementById('uploadFileInput').onchange=function(){
+document.getElementById('formFileInput').onchange=function(){
   if(this.files.length>0){
-    uploadFile=this.files[0];
-    document.getElementById('uploadFileInfo').textContent='✅ '+uploadFile.name+' ('+(uploadFile.size/1024/1024).toFixed(1)+'MB)';
+    editFile=this.files[0];
+    document.getElementById('uploadFileInfo').textContent='✅ '+editFile.name;
     document.getElementById('uploadFileArea').classList.add('has-file');
-    if(!document.getElementById('uploadTitle').value){
-      document.getElementById('uploadTitle').value=uploadFile.name.replace(/\.[^.]+$/,'');
+    document.getElementById('formUrl').value='';
+    if(!document.getElementById('formSongTitle').value){
+      document.getElementById('formSongTitle').value=editFile.name.replace(/\.[^.]+$/,'');
     }
   }
 };
-
-// Cover file upload preview
-let uploadCoverFile=null;
-document.getElementById('uploadCoverFile').onchange=function(){
+document.getElementById('formCoverFile').onchange=function(){
   if(this.files.length>0){
-    uploadCoverFile=this.files[0];
-    document.getElementById('uploadCover').value='';
+    editCoverFile=this.files[0];
+    document.getElementById('formCover').value='';
     const reader=new FileReader();
-    reader.onload=function(e){
-      document.getElementById('coverPreviewImg').src=e.target.result;
-      document.getElementById('coverPreview').style.display='block';
-    };
-    reader.readAsDataURL(uploadCoverFile);
+    reader.onload=e=>{document.getElementById('coverPreviewImg').src=e.target.result;document.getElementById('coverPreview').style.display='block';};
+    reader.readAsDataURL(editCoverFile);
   }
 };
-document.getElementById('uploadCover').oninput=function(){
-  if(this.value){
-    uploadCoverFile=null;
-    document.getElementById('coverPreview').style.display='none';
-  }
-};
+document.getElementById('formCover').oninput=function(){if(this.value){editCoverFile=null;document.getElementById('coverPreview').style.display='none';}};
 
 async function uploadCoverImage(file){
   const fd=new FormData();fd.append('file',file);
   const res=await fetch(API_BASE+'/upload-cover',{method:'POST',headers:{'Authorization':'Bearer '+getToken()},body:fd});
   const json=await res.json();
   if(json.code===0)return json.data.url;
-  throw new Error(json.msg||'封面上传失败');
+  throw new Error(json.msg);
 }
 
-async function submitUpload(){
-  const title=document.getElementById('uploadTitle').value.trim();
+async function submitForm(){
+  const id=document.getElementById('formId').value;
+  const title=document.getElementById('formSongTitle').value.trim();
   if(!title){toast('请输入歌曲标题','error');return;}
-  const urlInput=document.getElementById('uploadUrl').value.trim();
-  if(!uploadFile&&!urlInput){toast('请选择 MP3 文件或填写音乐链接','error');return;}
-  // Upload cover image if local file selected
-  let coverUrl=document.getElementById('uploadCover').value.trim();
-  if(uploadCoverFile){
-    try{coverUrl=await uploadCoverImage(uploadCoverFile);}
-    catch(e){toast('封面上传失败: '+e.message,'error');return;}
+  // Upload cover if local file selected
+  let coverUrl=document.getElementById('formCover').value.trim();
+  if(editCoverFile){try{coverUrl=await uploadCoverImage(editCoverFile);}catch(e){toast('封面上传失败','error');return;}}
+  // Edit mode
+  if(id){
+    const data={id,title,artist:document.getElementById('formArtist').value.trim(),cover:coverUrl};
+    try{
+      const res=await fetch(API_BASE+'/update',{method:'POST',headers:{'Authorization':'Bearer '+getToken(),'Content-Type':'application/json'},body:JSON.stringify(data)});
+      const json=await res.json();
+      if(json.code===0){toast('保存成功','success');const i=songs.findIndex(s=>s.id===id);if(i>=0)songs[i]=json.data;renderSongs();hideForm();}
+      else toast('保存失败','error');
+    }catch(e){toast('保存出错','error');}
+    return;
   }
-  // If URL provided (no file), submit as URL song
-  if(urlInput&&!uploadFile){
-    const data={title:title,artist:document.getElementById('uploadArtist').value.trim(),cover:coverUrl,url:urlInput,filename:urlInput.split('/').pop().split('?')[0]};
+  // Add mode - URL
+  const urlInput=document.getElementById('formUrl').value.trim();
+  if(urlInput&&!editFile){
+    const data={title,artist:document.getElementById('formArtist').value.trim(),cover:coverUrl,url:urlInput};
     try{
       const res=await fetch(API_BASE+'/add-url',{method:'POST',headers:{'Authorization':'Bearer '+getToken(),'Content-Type':'application/json'},body:JSON.stringify(data)});
       const json=await res.json();
-      if(json.code===0){toast('添加成功','success');songs.push(json.data);renderSongs();hideUploadForm();}
-      else toast('添加失败: '+json.msg,'error');
+      if(json.code===0){toast('添加成功','success');songs.push(json.data);renderSongs();hideForm();}
+      else toast('添加失败','error');
     }catch(e){toast('添加出错','error');}
     return;
   }
-  // If file selected, upload file
-  const fd=new FormData();
-  fd.append('file',uploadFile);
-  fd.append('title',title);
-  fd.append('artist',document.getElementById('uploadArtist').value.trim());
-  fd.append('cover',coverUrl);
+  // Add mode - file
+  if(!editFile){toast('请选择文件或填写链接','error');return;}
+  const fd=new FormData();fd.append('file',editFile);fd.append('title',title);
+  fd.append('artist',document.getElementById('formArtist').value.trim());fd.append('cover',coverUrl);
   try{
     const res=await fetch(API_BASE+'/upload',{method:'POST',headers:{'Authorization':'Bearer '+getToken()},body:fd});
     const json=await res.json();
-    if(json.code===0){toast('上传成功','success');songs.push(json.data);renderSongs();hideUploadForm();}
-    else toast('上传失败: '+json.msg,'error');
+    if(json.code===0){toast('上传成功','success');songs.push(json.data);renderSongs();hideForm();}
+    else toast('上传失败','error');
   }catch(e){toast('上传出错','error');}
 }
 
 // Player
 function playSong(id){
   const song=songs.find(s=>s.id===id);if(!song)return;
-  // If clicking the same song that's playing, toggle pause
-  if(currentSong&&currentSong.id===id){
-    if(audio.paused){audio.play();}else{audio.pause();}
-    renderSongs();
-    return;
-  }
-  currentSong=song;
-  audio.src=song.url;
-  audio.play();
+  if(currentSong&&currentSong.id===id){if(audio.paused){audio.play();}else{audio.pause();}renderSongs();return;}
+  currentSong=song;audio.src=song.url;audio.play();
   document.getElementById('playerBar').classList.add('active');
   document.getElementById('playerTitle').textContent=song.title;
   document.getElementById('playerArtist').textContent=song.artist||'未知歌手';
-  document.getElementById('playerPlayBtn').textContent='⏸';
-  renderSongs();
+  document.getElementById('playerPlayBtn').textContent='⏸';renderSongs();
 }
 function playerToggle(){if(audio.paused){audio.play();}else{audio.pause();}renderSongs();}
 function playerSeek(sec){audio.currentTime=Math.max(0,Math.min(audio.duration||0,audio.currentTime+sec));}
@@ -306,26 +273,6 @@ audio.onended=()=>{document.getElementById('playerPlayBtn').textContent='▶';re
 audio.onpause=()=>{document.getElementById('playerPlayBtn').textContent='▶';renderSongs();};
 audio.onplay=()=>{document.getElementById('playerPlayBtn').textContent='⏸';renderSongs();};
 
-// Edit
-function editSong(id){
-  const song=songs.find(s=>s.id===id);if(!song)return;
-  document.getElementById('editId').value=id;
-  document.getElementById('editTitle').value=song.title||'';
-  document.getElementById('editArtist').value=song.artist||'';
-  document.getElementById('editCover').value=song.cover||'';
-  document.getElementById('editModal').classList.add('active');
-}
-function closeModal(){document.getElementById('editModal').classList.remove('active');}
-async function saveEdit(){
-  const id=document.getElementById('editId').value;
-  const data={id,title:document.getElementById('editTitle').value,artist:document.getElementById('editArtist').value,cover:document.getElementById('editCover').value};
-  try{
-    const res=await fetch(API_BASE+'/update',{method:'PUT',headers:{'Authorization':'Bearer '+getToken(),'Content-Type':'application/json'},body:JSON.stringify(data)});
-    const json=await res.json();
-    if(json.code===0){toast('保存成功','success');const i=songs.findIndex(s=>s.id===id);if(i>=0)songs[i]=json.data;renderSongs();closeModal();}
-    else toast('保存失败','error');
-  }catch(e){toast('保存出错','error');}
-}
 async function deleteSong(id){
   if(!confirm('确定删除这首歌？'))return;
   try{
@@ -335,7 +282,6 @@ async function deleteSong(id){
     else toast('删除失败','error');
   }catch(e){toast('删除出错','error');}
 }
-
 loadSongs();
 </script>
 </body>
