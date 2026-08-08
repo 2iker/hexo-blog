@@ -11,3 +11,15 @@ body {
 .footer {
   flex-shrink: 0;
 }
+
+// Tag cloud: increase contrast so tags are clearly readable
+.tag-cloud a {
+  border-bottom: 1px solid transparent;
+  color: var(--link-color);
+  transition: color 0.2s ease-in-out, border-bottom-color 0.2s ease-in-out;
+}
+
+.tag-cloud a:hover {
+  color: var(--link-hover-color);
+  border-bottom-color: var(--link-hover-color);
+}

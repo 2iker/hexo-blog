@@ -7,6 +7,9 @@ scheme: Gemini
 # Dark Mode
 darkmode: true
 
+# PJAX: keep player (and page) state across navigations without full reloads
+pjax: true
+
 # Menu (keys are auto-translated with zh-CN)
 menu:
   home: / || fa fa-home
@@ -25,6 +28,12 @@ sidebar:
   width_expanded: 320
   width_dual_column: 240
   display: post
+
+# Avatar
+avatar:
+  url: https://github.com/2iker.png
+  rounded: true
+  rotated: true
 
 # Social links
 social:
@@ -51,7 +60,7 @@ codeblock:
   language: true
 
 back2top:
-  enable: true
+  enable: false
   sidebar: false
   scrollpercent: true
 
