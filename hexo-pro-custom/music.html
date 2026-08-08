@@ -155,13 +155,14 @@ function renderSongs(){
     const coverHtml=s.cover?'<div class="song-cover"><img src="'+esc(s.cover)+'" onerror="this.parentElement.innerHTML=\'♪\'"></div>':'<div class="song-cover">♪</div>';
     const isPlaying=currentSong&&currentSong.id===s.id&&!audio.paused;
     const playBtn=isPlaying?'<button class="btn btn-primary btn-sm" onclick="playSong(\''+s.id+'\')">暂停</button>':'<button class="btn btn-default btn-sm" onclick="playSong(\''+s.id+'\')">播放</button>';
-    const pct=(currentSong&&currentSong.id===s.id)?(audio.duration?(audio.currentTime/audio.duration*100):0):0;
-    const timeText=(currentSong&&currentSong.id===s.id)?fmtTime(audio.currentTime)+' / '+fmtTime(audio.duration||0):'0:00';
+    const isCurrent=currentSong&&currentSong.id===s.id;
+    const pct=isCurrent?(audio.duration?(audio.currentTime/audio.duration*100):0):0;
+    const timeText=isCurrent?fmtTime(audio.currentTime)+' / '+fmtTime(audio.duration||0):'';
+    const progressHtml=isCurrent?'<div class="song-progress" onclick="seekSong(event,\''+s.id+'\')" onmousedown="startDrag(event,\''+s.id+'\')"><div class="song-progress-fill" id="prog-'+s.id+'" style="width:'+pct+'%"></div></div><div class="song-time" id="time-'+s.id+'">'+timeText+'</div>':'';
     return '<div class="song-item">'+coverHtml+
       '<div class="song-info"><div class="song-title">'+esc(s.title)+'</div>'+
       '<div class="song-meta"><span>'+(s.artist?esc(s.artist):'未知歌手')+'</span></div></div>'+
-      '<div class="song-progress" data-id="'+s.id+'" onclick="seekSong(event,\''+s.id+'\')" onmousedown="startDrag(event,\''+s.id+'\')"><div class="song-progress-fill" id="prog-'+s.id+'" style="width:'+pct+'%"></div></div>'+
-      '<div class="song-time" id="time-'+s.id+'">'+timeText+'</div>'+
+      progressHtml+
       '<div class="song-actions">'+playBtn+
       '<button class="btn btn-default btn-sm" onclick="editSong(\''+s.id+'\')">编辑</button>'+
       '<button class="btn btn-danger btn-sm" onclick="deleteSong(\''+s.id+'\')">删除</button>'+
