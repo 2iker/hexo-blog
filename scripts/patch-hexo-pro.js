@@ -133,10 +133,11 @@ if (fs.existsSync(customDir)) {
   }
 }
 
-// 6. Patch api.js to register music_api (only if not already present)
+// 6. Patch api.js to register music_api and add root body-parser
 const apiFile = path.join(proDir, 'api.js');
 if (fs.existsSync(apiFile)) {
   let a = fs.readFileSync(apiFile, 'utf8');
+  // Add music_api
   if (!a.includes("require('./music_api')")) {
     a = a.replace(
       "const theme_api = require('./theme_api'); // 主题市场API",
@@ -146,7 +147,15 @@ if (fs.existsSync(apiFile)) {
       "theme_api(app, hexo, use, db); // 注册主题市场API",
       "theme_api(app, hexo, use, db); // 注册主题市场API\n        music_api(app, hexo); // 注册音乐管理API"
     );
-    fs.writeFileSync(apiFile, a);
-    log('api.js: registered music_api');
   }
+  // Add body-parser for root-prefixed path (fix 400 error on post/update)
+  if (!a.includes("root + 'hexopro/api'")) {
+    a = a.replace(
+      "app.use('/hexopro/api', bodyParser.urlencoded({ extended: true }));",
+      "app.use('/hexopro/api', bodyParser.urlencoded({ extended: true }));\n\n    // Also add body-parser for root-prefixed path (after rewrite)\n    const _root = hexo.config.root || '/';\n    if (_root !== '/') {\n        app.use(_root + 'hexopro/api', bodyParser.json({ limit: '50mb' }));\n        app.use(_root + 'hexopro/api', bodyParser.urlencoded({ extended: true }));\n    }"
+    );
+  }
+  fs.writeFileSync(apiFile, a);
+  log('api.js: patched');
+}
 }
