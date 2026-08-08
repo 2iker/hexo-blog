@@ -5,7 +5,7 @@
   var root = (window.CONFIG && CONFIG.root) || '/hexo-blog/'
 
       var tracks = [
-    { name: '烟火里的尘埃', artist: '黄霄雲', url: root + 'music/bg-music.mp3', cover: root + 'hexo-blog/music/covers/bg-music.jpg' },
+    { name: '烟火里的尘埃', artist: '黄霄雲', url: root + 'music/bg-music.mp3', cover: root + 'music/covers/bg-music.jpg' },
     { name: 'Got It (PHONK)', artist: 'Lunak,VZEUS', url: 'http://music.163.com/song/media/outer/url?id=2679634795.mp3', cover: 'http://p1.music.126.net/1Mzs04Qi_k9KY3RvZaggSw==/109951170525558620.jpg' },
     { name: '????', artist: '????', url: 'http://example.com/test-sync.mp3', cover: '' }
   ]
