@@ -22,7 +22,7 @@ hexo.extend.filter.register('theme_inject', (injects) => {
   injects.head.raw('sidebar-music-style', '<link rel="stylesheet" href="/hexo-blog/css/sidebar-music.css">')
   injects.sidebar.raw('sidebar-music', `
     <div class="sidebar-music">
-      <div class="sidebar-music-title">我的音乐</div>
+      <div class="sidebar-music-title">音乐电台</div>
       <div id="sidebar-music-player"></div>
     </div>
   `)
