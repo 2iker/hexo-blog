@@ -76,9 +76,14 @@ if (fs.existsSync(indexFile)) {
   }
 }
 
-// 3. Fix index.html asset paths
+// 3. Fix index.html asset paths (skip if custom index.html exists)
 const htmlFile = path.join(proDir, 'www', 'index.html');
-if (fs.existsSync(htmlFile)) {
+const customHtml = path.join(root, 'hexo-pro-custom', 'index.html');
+if (fs.existsSync(customHtml)) {
+  // Custom index.html already has asset fixes + music injection, copy directly
+  fs.copyFileSync(customHtml, htmlFile);
+  log('index.html: replaced with custom version (asset fixes + music injection)');
+} else if (fs.existsSync(htmlFile)) {
   let h = fs.readFileSync(htmlFile, 'utf8');
   const hBefore = h;
   h = h.replace(/src="\/pro\//g, 'src="');
@@ -116,6 +121,7 @@ const customDir = path.join(root, 'hexo-pro-custom');
 if (fs.existsSync(customDir)) {
   const customFiles = fs.readdirSync(customDir);
   for (const file of customFiles) {
+    if (file === 'index.html') continue; // Already handled in step 3
     const src = path.join(customDir, file);
     const dst = path.join(proDir, file === 'music.html' ? 'www' : '', file);
     try {
