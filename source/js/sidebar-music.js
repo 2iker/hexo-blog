@@ -134,7 +134,7 @@
       audio.load()
       setTimeout(function() {
         cover.classList.remove('switching')
-        if (autoplay) audio.play()
+        if (autoplay) setTimeout(function() { audio.play() }, 500)
       }, 50)
     }, 200)
   }
