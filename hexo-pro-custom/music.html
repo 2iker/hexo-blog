@@ -139,12 +139,16 @@ function renderSongs(){
     const coverHtml=s.cover
       ?'<img src="'+esc(s.cover)+'" onerror="this.parentElement.innerHTML=\'♪\'">'
       :'♪';
+    const isPlaying=currentSong&&currentSong.id===s.id&&!audio.paused;
+    const playBtn=isPlaying
+      ?'<button class="btn btn-primary btn-sm" onclick="playSong(\''+s.id+'\')">⏸ 暂停</button>'
+      :'<button class="btn btn-default btn-sm" onclick="playSong(\''+s.id+'\')">▶ 播放</button>';
     return '<div class="song-item">'+
       '<div class="song-cover">'+coverHtml+'</div>'+
       '<div class="song-info"><div class="song-title">'+esc(s.title)+'</div>'+
       '<div class="song-meta"><span>'+(s.artist?esc(s.artist):'未知歌手')+'</span><span>'+esc(s.filename)+'</span></div></div>'+
       '<div class="song-actions">'+
-      '<button class="btn btn-default btn-sm" onclick="playSong(\''+s.id+'\')">▶ 播放</button>'+
+      playBtn+
       '<button class="btn btn-default btn-sm" onclick="editSong(\''+s.id+'\')">✏️ 编辑</button>'+
       '<button class="btn btn-danger btn-sm" onclick="deleteSong(\''+s.id+'\')">🗑️ 删除</button>'+
       '</div></div>';
@@ -173,6 +177,12 @@ async function handleUpload(files){
 // Player
 function playSong(id){
   const song=songs.find(s=>s.id===id);if(!song)return;
+  // If clicking the same song that's playing, toggle pause
+  if(currentSong&&currentSong.id===id){
+    if(audio.paused){audio.play();}else{audio.pause();}
+    renderSongs();
+    return;
+  }
   currentSong=song;
   audio.src='/hexo-blog/music/'+song.filename;
   audio.play();
@@ -180,13 +190,16 @@ function playSong(id){
   document.getElementById('playerTitle').textContent=song.title;
   document.getElementById('playerArtist').textContent=song.artist||'未知歌手';
   document.getElementById('playerPlayBtn').textContent='⏸';
+  renderSongs();
 }
-function playerToggle(){if(audio.paused){audio.play();document.getElementById('playerPlayBtn').textContent='⏸';}else{audio.pause();document.getElementById('playerPlayBtn').textContent='▶';}}
+function playerToggle(){if(audio.paused){audio.play();}else{audio.pause();}renderSongs();}
 function playerSeek(sec){audio.currentTime=Math.max(0,Math.min(audio.duration||0,audio.currentTime+sec));}
 function playerStop(){audio.pause();audio.currentTime=0;document.getElementById('playerBar').classList.remove('active');}
 function playerClickProgress(e){const r=e.currentTarget.getBoundingClientRect();audio.currentTime=(e.clientX-r.left)/r.width*(audio.duration||0);}
 audio.ontimeupdate=()=>{const pct=audio.duration?(audio.currentTime/audio.duration*100):0;document.getElementById('progressFill').style.width=pct+'%';document.getElementById('playerTime').textContent=fmtTime(audio.currentTime)+' / '+fmtTime(audio.duration||0);};
-audio.onended=()=>{document.getElementById('playerPlayBtn').textContent='▶';};
+audio.onended=()=>{document.getElementById('playerPlayBtn').textContent='▶';renderSongs();};
+audio.onpause=()=>{document.getElementById('playerPlayBtn').textContent='▶';renderSongs();};
+audio.onplay=()=>{document.getElementById('playerPlayBtn').textContent='⏸';renderSongs();};
 
 // Edit
 function editSong(id){
