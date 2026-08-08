@@ -106,8 +106,7 @@
       item.type = 'button'
       item.appendChild(line)
       item.addEventListener('click', function () {
-        load(i)
-        audio.play()
+        load(i, true)
       })
       listEl.appendChild(item)
     })
@@ -119,7 +118,7 @@
     cover.classList.toggle('playing', playing)
   }
 
-  function load(i) {
+  function load(i, autoplay) {
     index = i
     // Smooth transition for cover
     cover.classList.add('switching')
@@ -133,7 +132,10 @@
       setPlaying(false)
       buildList()
       audio.load()
-      setTimeout(function() { cover.classList.remove('switching') }, 50)
+      setTimeout(function() {
+        cover.classList.remove('switching')
+        if (autoplay) audio.play()
+      }, 50)
     }, 200)
   }
 
@@ -147,14 +149,12 @@
     } else {
       n = (index + 1) % tracks.length
     }
-    load(n)
-    audio.play()
+    load(n, true)
   }
 
   function prev() {
     var n = (index - 1 + tracks.length) % tracks.length
-    load(n)
-    audio.play()
+    load(n, true)
   }
 
   function ratioFromEvent(e) {
