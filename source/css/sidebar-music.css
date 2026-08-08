@@ -45,6 +45,17 @@
   flex: none;
   background: var(--sm-accent);
   cursor: pointer;
+  transition: border-radius 0.3s ease, transform 0.3s ease;
+}
+
+.sm-cover.playing {
+  border-radius: 50%;
+  animation: sm-rotate 8s linear infinite;
+}
+
+@keyframes sm-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .sm-meta {

@@ -4,9 +4,9 @@
 
   var root = (window.CONFIG && CONFIG.root) || '/hexo-blog/'
 
-          var tracks = [
+                                                                              var tracks = [
     { name: '烟火里的尘埃', artist: '黄霄雲', url: root + 'music/bg-music.mp3', cover: root + 'music/covers/bg-music.jpg' },
-    { name: 'Got It (PHONK)', artist: 'Lunak,VZEUS', url: 'http://music.163.com/song/media/outer/url?id=2679634795.mp3', cover: 'http://p1.music.126.net/1Mzs04Qi_k9KY3RvZaggSw==/109951170525558620.jpg' }
+    { name: '海屿你', artist: '马也_Crabbit', url: 'http://music.163.com/song/media/outer/url?id=1973665667.mp3', cover: 'http://p1.music.126.net/RfguLkQJ8aMVkiIaxdy70Q==/109951170483263672.jpg' }
   ]
 
   var ICON_PLAY = '<svg viewBox="0 0 24 24"><path d="M8 5.14v13.72c0 .6.66.97 1.17.65l11.17-6.86a.77.77 0 0 0 0-1.3L9.17 4.49A.77.77 0 0 0 8 5.14z"/></svg>'
@@ -116,6 +116,7 @@
   function setPlaying(playing) {
     btnToggle.classList.toggle('playing', playing)
     btnToggle.innerHTML = playing ? ICON_PAUSE : ICON_PLAY
+    cover.classList.toggle('playing', playing)
   }
 
   function load(i) {
