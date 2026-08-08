@@ -22,12 +22,36 @@ function saveMusicData(hexo, data) {
   fs.writeFileSync(getMusicDataPath(hexo), JSON.stringify(data, null, 2), 'utf8');
 }
 
-// Scan source/music for MP3 files not yet in music_data.json
+// Parse tracks metadata from source/js/sidebar-music.js
+function parseSidebarTracks(hexo) {
+  const tracksFile = path.join(hexo.base_dir, 'source', 'js', 'sidebar-music.js');
+  if (!fs.existsSync(tracksFile)) return [];
+  const content = fs.readFileSync(tracksFile, 'utf8');
+  const tracks = [];
+  // Match: { name: 'xxx', artist: 'xxx', url: root + 'music/xxx.mp3', cover: root + 'music/covers/xxx.jpg' }
+  const regex = /\{\s*name:\s*['"](.+?)['"]\s*,\s*artist:\s*['"](.+?)['"]\s*,\s*url:\s*root\s*\+\s*['"](.+?)['"]\s*,\s*cover:\s*root\s*\+\s*['"](.+?)['"]/g;
+  let m;
+  while ((m = regex.exec(content)) !== null) {
+    const urlPath = m[3]; // e.g. /music/bg-music.mp3
+    const filename = path.basename(urlPath);
+    tracks.push({ name: m[1], artist: m[2], filename: filename, cover: m[4] });
+  }
+  return tracks;
+}
+
+// Scan source/music for MP3 files, merge with sidebar metadata
 function scanExistingFiles(hexo) {
   const musicDir = path.join(hexo.base_dir, MUSIC_DIR);
   const coverDir = path.join(hexo.base_dir, COVER_DIR);
   const data = loadMusicData(hexo);
   const existingFilenames = new Set(data.songs.map(s => s.filename));
+
+  // Get metadata from sidebar-music.js
+  const sidebarTracks = parseSidebarTracks(hexo);
+  const sidebarMeta = {};
+  for (const t of sidebarTracks) {
+    sidebarMeta[t.filename] = t;
+  }
 
   if (!fs.existsSync(musicDir)) return data;
 
@@ -36,7 +60,6 @@ function scanExistingFiles(hexo) {
 
   for (const file of mp3Files) {
     if (existingFilenames.has(file)) continue;
-    // Try to find a matching cover
     const baseName = path.basename(file, path.extname(file));
     let cover = '';
     if (fs.existsSync(coverDir)) {
@@ -44,16 +67,35 @@ function scanExistingFiles(hexo) {
       const match = covers.find(c => c.startsWith(baseName) || c.includes(baseName));
       if (match) cover = '/music/covers/' + match;
     }
+    // Use sidebar metadata if available
+    const meta = sidebarMeta[file] || {};
     data.songs.push({
       id: Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
-      title: baseName,
-      artist: '',
-      cover: cover,
+      title: meta.name || baseName,
+      artist: meta.artist || '',
+      cover: meta.cover || cover,
       url: '/music/' + file,
       filename: file,
       createdAt: new Date().toISOString()
     });
     changed = true;
+  }
+
+  // Update existing songs with sidebar metadata if they have empty fields
+  for (const song of data.songs) {
+    const meta = sidebarMeta[song.filename];
+    if (meta) {
+      if (!song.title || song.title === path.basename(song.filename, path.extname(song.filename))) {
+        song.title = meta.name;
+      }
+      if (!song.artist && meta.artist) {
+        song.artist = meta.artist;
+      }
+      if (!song.cover && meta.cover) {
+        song.cover = meta.cover;
+      }
+      changed = true;
+    }
   }
 
   if (changed) saveMusicData(hexo, data);
