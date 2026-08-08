@@ -133,6 +133,7 @@ let audio = document.getElementById('audio');
 let currentSong = null;
 let editFile = null;
 let editCoverFile = null;
+let durations = {};
 function getToken(){return localStorage.getItem('hexoProToken')||'';}
 function toast(msg,type){const el=document.createElement('div');el.className='toast toast-'+type;el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),3000);}
 function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
@@ -144,7 +145,19 @@ async function loadSongs(){
     const json=await res.json();
     songs=json.data||[];
     renderSongs();
+    loadDurations();
   }catch(e){document.getElementById('songList').innerHTML='<div class="empty"><div class="empty-icon">❌</div><div class="empty-text">加载失败</div></div>';}
+}
+
+function loadDurations(){
+  songs.forEach(s=>{
+    if(durations[s.id])return;
+    const a=new Audio();
+    a.preload='metadata';
+    a.onloadedmetadata=()=>{durations[s.id]=a.duration;renderSongs();};
+    a.onerror=()=>{};
+    a.src=s.url;
+  });
 }
 
 function renderSongs(){
@@ -156,13 +169,14 @@ function renderSongs(){
     const isPlaying=currentSong&&currentSong.id===s.id&&!audio.paused;
     const playBtn=isPlaying?'<button class="btn btn-primary btn-sm" onclick="playSong(\''+s.id+'\')">暂停</button>':'<button class="btn btn-default btn-sm" onclick="playSong(\''+s.id+'\')">播放</button>';
     const isCurrent=currentSong&&currentSong.id===s.id;
-    const pct=isCurrent?(audio.duration?(audio.currentTime/audio.duration*100):0):0;
-    const timeText=isCurrent?fmtTime(audio.currentTime)+' / '+fmtTime(audio.duration||0):'';
-    const progressHtml=isCurrent?'<div class="song-progress" onclick="seekSong(event,\''+s.id+'\')" onmousedown="startDrag(event,\''+s.id+'\')"><div class="song-progress-fill" id="prog-'+s.id+'" style="width:'+pct+'%"></div></div><div class="song-time" id="time-'+s.id+'">'+timeText+'</div>':'';
+    const dur=durations[s.id]||0;
+    const pct=isCurrent&&dur?(audio.currentTime/dur*100):0;
+    const timeText=isCurrent?fmtTime(audio.currentTime)+' / '+fmtTime(dur):'0:00 / '+fmtTime(dur);
     return '<div class="song-item">'+coverHtml+
       '<div class="song-info"><div class="song-title">'+esc(s.title)+'</div>'+
       '<div class="song-meta"><span>'+(s.artist?esc(s.artist):'未知歌手')+'</span></div></div>'+
-      progressHtml+
+      '<div class="song-progress" onclick="seekSong(event,\''+s.id+'\')" onmousedown="startDrag(event,\''+s.id+'\')"><div class="song-progress-fill" id="prog-'+s.id+'" style="width:'+pct+'%"></div></div>'+
+      '<div class="song-time" id="time-'+s.id+'">'+timeText+'</div>'+
       '<div class="song-actions">'+playBtn+
       '<button class="btn btn-default btn-sm" onclick="editSong(\''+s.id+'\')">编辑</button>'+
       '<button class="btn btn-danger btn-sm" onclick="deleteSong(\''+s.id+'\')">删除</button>'+
