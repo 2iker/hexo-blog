@@ -121,15 +121,20 @@
 
   function load(i) {
     index = i
-    audio.src = tracks[i].url
-    cover.src = tracks[i].cover
-    nameEl.textContent = tracks[i].name
-    artistEl.textContent = tracks[i].artist
-    played.style.width = '0%'
-    timeEl.textContent = '00:00'
-    setPlaying(false)
-    buildList()
-    audio.load()
+    // Smooth transition for cover
+    cover.classList.add('switching')
+    setTimeout(function() {
+      audio.src = tracks[i].url
+      cover.src = tracks[i].cover
+      nameEl.textContent = tracks[i].name
+      artistEl.textContent = tracks[i].artist
+      played.style.width = '0%'
+      timeEl.textContent = '00:00'
+      setPlaying(false)
+      buildList()
+      audio.load()
+      setTimeout(function() { cover.classList.remove('switching') }, 50)
+    }, 200)
   }
 
   function next() {
