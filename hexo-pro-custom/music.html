@@ -329,7 +329,7 @@ async function saveEdit(){
 async function deleteSong(id){
   if(!confirm('确定删除这首歌？'))return;
   try{
-    const res=await fetch(API_BASE+'/delete',{method:'DELETE',headers:{'Authorization':'Bearer '+getToken(),'Content-Type':'application/json'},body:JSON.stringify({id})});
+    const res=await fetch(API_BASE+'/delete',{method:'POST',headers:{'Authorization':'Bearer '+getToken(),'Content-Type':'application/json'},body:JSON.stringify({id})});
     const json=await res.json();
     if(json.code===0){toast('已删除','success');songs=songs.filter(s=>s.id!==id);renderSongs();}
     else toast('删除失败','error');
