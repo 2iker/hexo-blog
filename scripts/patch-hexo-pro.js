@@ -158,4 +158,18 @@ if (fs.existsSync(apiFile)) {
   fs.writeFileSync(apiFile, a);
   log('api.js: patched');
 }
+
+// 7. Patch update.js to trigger hexo regeneration after save
+const updateFile = path.join(proDir, 'update.js');
+if (fs.existsSync(updateFile)) {
+  let u = fs.readFileSync(updateFile, 'utf8');
+  if (!u.includes('hexo.generate()')) {
+    u = u.replace(
+      "hexo.log.info('文章保存成功！');",
+      "hexo.log.info('文章保存成功！');\n        hexo.generate().catch(err => { hexo.log.error('博客重新生成失败:', err); });"
+    );
+    fs.writeFileSync(updateFile, u);
+    log('update.js: added hexo.generate() after save');
+  }
+}
 }
