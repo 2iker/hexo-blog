@@ -46,7 +46,22 @@ if (fs.existsSync(indexFile)) {
   // Add URL rewrite for frontend API calls (only if not already present)
   if (!c.includes('const _hr')) {
     const anchor = "    app.use((req, res, next) => {\n        if (!req.query";
-    const rewrite = `    // Rewrite /hexopro/* and /pro/* to include root prefix\n    const _hr = hexo.config.root || '/';\n    if (_hr !== '/') {\n        app.use((req, res, next) => {\n            if ((req.url.startsWith('/hexopro/') || req.url.startsWith('/pro/')) && !req.url.startsWith(_hr)) {\n                req.url = _hr + req.url.substring(1);\n            }\n            next();\n        });\n    }\n\n    app.use((req, res, next) => {\n        if (!req.query`;
+    const rewrite = [
+      '    // Rewrite /hexopro/* and /pro/* to include root prefix',
+      "    const _hr = hexo.config.root || '/';",
+      "    if (_hr !== '/') {",
+      '        app.use((req, res, next) => {',
+      "            if ((req.url.startsWith('/hexopro/') || req.url.startsWith('/pro/')) && !req.url.startsWith(_hr)) {",
+      '                req.url = _hr + req.url.substring(1);',
+      '                req.originalUrl = _hr + req.originalUrl.substring(1);',
+      '            }',
+      '            next();',
+      '        });',
+      '    }',
+      '',
+      '    app.use((req, res, next) => {',
+      '        if (!req.query'
+    ].join('\n');
 
     if (c.includes(anchor)) {
       c = c.replace(anchor, rewrite);
@@ -73,6 +88,24 @@ if (fs.existsSync(htmlFile)) {
     log('index.html: fixed asset paths');
   } else {
     log('index.html: already patched');
+  }
+}
+
+// 4. Fix main.js bundle basename (hardcoded /pro -> dynamic)
+const mainJsDir = path.join(proDir, 'www', 'static', 'js');
+if (fs.existsSync(mainJsDir)) {
+  const mainFiles = fs.readdirSync(mainJsDir).filter(f => f.startsWith('main') && f.endsWith('.js'));
+  for (const mainFile of mainFiles) {
+    const mainPath = path.join(mainJsDir, mainFile);
+    let m = fs.readFileSync(mainPath, 'utf8');
+    const mBefore = m;
+    const target = 'basename:"/pro"';
+    const replacement = 'basename:(window.__hexoProBase||"/pro")';
+    if (m.includes(target)) {
+      m = m.split(target).join(replacement);
+      fs.writeFileSync(mainPath, m, 'utf8');
+      log('main.js: fixed basename');
+    }
   }
 }
 
