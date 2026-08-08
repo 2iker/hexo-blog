@@ -58,7 +58,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 <body>
 <div class="header">
   <h1>🎵 音乐管理</h1>
-  <a href="/hexo-blog/pro/">← 返回管理后台</a>
+  <a href="#" onclick="goBack();return false;">← 返回管理后台</a>
 </div>
 
 <div class="container">
@@ -124,6 +124,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 <audio id="audio" style="display:none"></audio>
 
 <script>
+function goBack(){
+  if(window.parent!==window){window.parent.postMessage('closeMusicPage','*');}
+  else{window.history.back();}
+}
 const API_BASE = '/hexo-blog/hexopro/api/music';
 let songs = [];
 let audio = document.getElementById('audio');
