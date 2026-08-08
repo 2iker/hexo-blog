@@ -27,7 +27,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .song-info{flex:1;min-width:0}
 .song-title{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .song-meta{font-size:12px;color:#999;margin-top:3px;display:flex;gap:12px}
-.song-actions{display:flex;gap:6px;flex-shrink:0}
+.song-actions{display:flex;gap:6px;flex-shrink:0;align-items:center}
+.song-progress{flex:1;min-width:80px;height:4px;background:#e8e8e8;border-radius:2px;cursor:pointer;position:relative}
+.song-progress-fill{height:100%;background:#1890ff;border-radius:2px;transition:width .1s}
+.song-progress:hover .song-progress-fill{background:#40a9ff}
 .empty{text-align:center;padding:48px 20px;color:#bbb}
 .empty-icon{font-size:48px;margin-bottom:12px}
 .empty-text{font-size:14px}
@@ -150,9 +153,11 @@ function renderSongs(){
     const coverHtml=s.cover?'<div class="song-cover"><img src="'+esc(s.cover)+'" onerror="this.parentElement.innerHTML=\'♪\'"></div>':'<div class="song-cover">♪</div>';
     const isPlaying=currentSong&&currentSong.id===s.id&&!audio.paused;
     const playBtn=isPlaying?'<button class="btn btn-primary btn-sm" onclick="playSong(\''+s.id+'\')">暂停</button>':'<button class="btn btn-default btn-sm" onclick="playSong(\''+s.id+'\')">播放</button>';
+    const pct=(currentSong&&currentSong.id===s.id)?(audio.duration?(audio.currentTime/audio.duration*100):0):0;
     return '<div class="song-item">'+coverHtml+
       '<div class="song-info"><div class="song-title">'+esc(s.title)+'</div>'+
-      '<div class="song-meta"><span>'+(s.artist?esc(s.artist):'未知歌手')+'</span><span>'+esc(s.filename)+'</span></div></div>'+
+      '<div class="song-meta"><span>'+(s.artist?esc(s.artist):'未知歌手')+'</span></div></div>'+
+      '<div class="song-progress" data-id="'+s.id+'" onclick="seekSong(event,\''+s.id+'\')" onmousedown="startDrag(event,\''+s.id+'\')"><div class="song-progress-fill" id="prog-'+s.id+'" style="width:'+pct+'%"></div></div>'+
       '<div class="song-actions">'+playBtn+
       '<button class="btn btn-default btn-sm" onclick="editSong(\''+s.id+'\')">编辑</button>'+
       '<button class="btn btn-danger btn-sm" onclick="deleteSong(\''+s.id+'\')">删除</button>'+
@@ -274,7 +279,35 @@ function playerToggle(){if(audio.paused){audio.play();}else{audio.pause();}rende
 function playerSeek(sec){audio.currentTime=Math.max(0,Math.min(audio.duration||0,audio.currentTime+sec));}
 function playerStop(){audio.pause();audio.currentTime=0;document.getElementById('playerBar').classList.remove('active');}
 function playerClickProgress(e){const r=e.currentTarget.getBoundingClientRect();audio.currentTime=(e.clientX-r.left)/r.width*(audio.duration||0);}
-audio.ontimeupdate=()=>{const pct=audio.duration?(audio.currentTime/audio.duration*100):0;document.getElementById('progressFill').style.width=pct+'%';document.getElementById('playerTime').textContent=fmtTime(audio.currentTime)+' / '+fmtTime(audio.duration||0);};
+
+// Song list progress bar
+function seekSong(e,id){
+  if(!currentSong||currentSong.id!==id||!audio.duration)return;
+  const r=e.currentTarget.getBoundingClientRect();
+  audio.currentTime=(e.clientX-r.left)/r.width*audio.duration;
+}
+let draggingId=null;
+function startDrag(e,id){
+  if(!currentSong||currentSong.id!==id||!audio.duration)return;
+  draggingId=id;
+  const onMove=(ev)=>{
+    const prog=document.getElementById('prog-'+id);
+    if(!prog)return;
+    const r=prog.parentElement.getBoundingClientRect();
+    const pct=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width));
+    prog.style.width=(pct*100)+'%';
+    audio.currentTime=pct*audio.duration;
+  };
+  const onUp=()=>{draggingId=null;document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);};
+  document.addEventListener('mousemove',onMove);
+  document.addEventListener('mouseup',onUp);
+}
+audio.ontimeupdate=()=>{
+  const pct=audio.duration?(audio.currentTime/audio.duration*100):0;
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('playerTime').textContent=fmtTime(audio.currentTime)+' / '+fmtTime(audio.duration||0);
+  if(currentSong){const prog=document.getElementById('prog-'+currentSong.id);if(prog)prog.style.width=pct+'%';}
+};
 audio.onended=()=>{document.getElementById('playerPlayBtn').textContent='▶';renderSongs();};
 audio.onpause=()=>{document.getElementById('playerPlayBtn').textContent='▶';renderSongs();};
 audio.onplay=()=>{document.getElementById('playerPlayBtn').textContent='⏸';renderSongs();};
