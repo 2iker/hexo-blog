@@ -139,8 +139,6 @@ module.exports = async function (app, hexo) {
     res.end(JSON.stringify({ code: 0, data: data.songs }));
   });
 
-  const uploadMp3 = multer({ storage: mp3Storage, limits: { fileSize: 50 * 1024 * 1024 } });
-
   // Upload MP3
   app.use(apiBase + '/upload', function (req, res) {
     if (req.method !== 'POST') return;
