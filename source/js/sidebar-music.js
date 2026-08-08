@@ -209,7 +209,7 @@
   })
   audio.addEventListener('ended', next)
 
-  load(0)
+  load(Math.floor(Math.random() * tracks.length))
 
   /* ---------- 融入侧边栏 ---------- */
   var sidebar = document.querySelector('.sidebar')
