@@ -45,12 +45,15 @@
   flex: none;
   background: var(--sm-accent);
   cursor: pointer;
-  transition: border-radius 0.3s ease, transform 0.3s ease;
+  transition: border-radius 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: rotate(0deg);
+  animation-play-state: paused;
 }
 
 .sm-cover.playing {
   border-radius: 50%;
-  animation: sm-rotate 8s linear infinite;
+  animation: sm-rotate 12s linear infinite;
+  animation-play-state: running;
 }
 
 @keyframes sm-rotate {
