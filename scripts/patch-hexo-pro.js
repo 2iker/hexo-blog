@@ -110,3 +110,37 @@ if (fs.existsSync(mainJsDir)) {
 }
 
 log('done');
+
+// 5. Copy custom files (music_api.js, music.html) from hexo-pro-custom/
+const customDir = path.join(root, 'hexo-pro-custom');
+if (fs.existsSync(customDir)) {
+  const customFiles = fs.readdirSync(customDir);
+  for (const file of customFiles) {
+    const src = path.join(customDir, file);
+    const dst = path.join(proDir, file === 'music.html' ? 'www' : '', file);
+    try {
+      fs.copyFileSync(src, dst);
+      log('custom: copied ' + file);
+    } catch (e) {
+      log('custom: failed to copy ' + file + ': ' + e.message);
+    }
+  }
+}
+
+// 6. Patch api.js to register music_api (only if not already present)
+const apiFile = path.join(proDir, 'api.js');
+if (fs.existsSync(apiFile)) {
+  let a = fs.readFileSync(apiFile, 'utf8');
+  if (!a.includes("require('./music_api')")) {
+    a = a.replace(
+      "const theme_api = require('./theme_api'); // 主题市场API",
+      "const theme_api = require('./theme_api'); // 主题市场API\nconst music_api = require('./music_api'); // 音乐管理API"
+    );
+    a = a.replace(
+      "theme_api(app, hexo, use, db); // 注册主题市场API",
+      "theme_api(app, hexo, use, db); // 注册主题市场API\n        music_api(app, hexo); // 注册音乐管理API"
+    );
+    fs.writeFileSync(apiFile, a);
+    log('api.js: registered music_api');
+  }
+}
