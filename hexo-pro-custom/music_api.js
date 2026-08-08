@@ -44,7 +44,7 @@ function syncToSidebarMusic(hexo, data, root) {
   if (newContent !== content) {
     fs.writeFileSync(tracksFile, newContent, 'utf8');
   }
-}}
+}
 
 // Parse tracks metadata from source/js/sidebar-music.js
 function parseSidebarTracks(hexo, root) {
