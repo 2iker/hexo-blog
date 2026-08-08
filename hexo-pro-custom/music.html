@@ -83,7 +83,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
     <div class="card-title">上传新歌曲</div>
     <div class="form-group"><label class="form-label">歌曲标题 *</label><input type="text" id="uploadTitle" class="form-input" placeholder="输入歌曲标题"></div>
     <div class="form-group"><label class="form-label">歌手</label><input type="text" id="uploadArtist" class="form-input" placeholder="输入歌手名称"></div>
-    <div class="form-group"><label class="form-label">封面图片 URL</label><input type="text" id="uploadCover" class="form-input" placeholder="https://example.com/cover.jpg"></div>
+    <div class="form-group"><label class="form-label">封面图片</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="text" id="uploadCover" class="form-input" placeholder="输入图片 URL" style="flex:1">
+        <span style="color:#999;font-size:12px">或</span>
+        <label class="btn btn-default btn-sm" style="cursor:pointer;margin:0">
+          📁 本地上传
+          <input type="file" id="uploadCoverFile" accept="image/*" style="display:none">
+        </label>
+      </div>
+      <div id="coverPreview" style="margin-top:8px;display:none"><img id="coverPreviewImg" style="width:60px;height:60px;border-radius:6px;object-fit:cover"></div>
+    </div>
     <div class="form-group"><label class="form-label">MP3 文件 *</label>
       <div class="upload-file-area" id="uploadFileArea" onclick="document.getElementById('uploadFileInput').click()">
         <div id="uploadFileInfo">📁 点击选择 MP3 文件</div>
@@ -195,22 +205,56 @@ document.getElementById('uploadFileInput').onchange=function(){
     uploadFile=this.files[0];
     document.getElementById('uploadFileInfo').textContent='✅ '+uploadFile.name+' ('+(uploadFile.size/1024/1024).toFixed(1)+'MB)';
     document.getElementById('uploadFileArea').classList.add('has-file');
-    // Auto-fill title from filename if empty
     if(!document.getElementById('uploadTitle').value){
       document.getElementById('uploadTitle').value=uploadFile.name.replace(/\.[^.]+$/,'');
     }
   }
 };
 
+// Cover file upload preview
+let uploadCoverFile=null;
+document.getElementById('uploadCoverFile').onchange=function(){
+  if(this.files.length>0){
+    uploadCoverFile=this.files[0];
+    document.getElementById('uploadCover').value='';
+    const reader=new FileReader();
+    reader.onload=function(e){
+      document.getElementById('coverPreviewImg').src=e.target.result;
+      document.getElementById('coverPreview').style.display='block';
+    };
+    reader.readAsDataURL(uploadCoverFile);
+  }
+};
+document.getElementById('uploadCover').oninput=function(){
+  if(this.value){
+    uploadCoverFile=null;
+    document.getElementById('coverPreview').style.display='none';
+  }
+};
+
+async function uploadCoverImage(file){
+  const fd=new FormData();fd.append('file',file);
+  const res=await fetch(API_BASE+'/upload-cover',{method:'POST',headers:{'Authorization':'Bearer '+getToken()},body:fd});
+  const json=await res.json();
+  if(json.code===0)return json.data.url;
+  throw new Error(json.msg||'封面上传失败');
+}
+
 async function submitUpload(){
   const title=document.getElementById('uploadTitle').value.trim();
   if(!title){toast('请输入歌曲标题','error');return;}
   if(!uploadFile){toast('请选择 MP3 文件','error');return;}
+  // Upload cover image if local file selected
+  let coverUrl=document.getElementById('uploadCover').value.trim();
+  if(uploadCoverFile){
+    try{coverUrl=await uploadCoverImage(uploadCoverFile);}
+    catch(e){toast('封面上传失败: '+e.message,'error');return;}
+  }
   const fd=new FormData();
   fd.append('file',uploadFile);
   fd.append('title',title);
   fd.append('artist',document.getElementById('uploadArtist').value.trim());
-  fd.append('cover',document.getElementById('uploadCover').value.trim());
+  fd.append('cover',coverUrl);
   try{
     const res=await fetch(API_BASE+'/upload',{method:'POST',headers:{'Authorization':'Bearer '+getToken()},body:fd});
     const json=await res.json();
