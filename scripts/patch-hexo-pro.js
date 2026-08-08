@@ -43,12 +43,14 @@ if (fs.existsSync(indexFile)) {
   // Fix static serve mount
   c = c.replace("app.use('/pro', serve);", "app.use(hexo.config.root + 'pro', serve);");
 
-  // Add URL rewrite for frontend API calls
-  const anchor = "    app.use((req, res, next) => {\n        if (!req.query";
-  const rewrite = `    // Rewrite /hexopro/* and /pro/* to include root prefix\n    const _hr = hexo.config.root || '/';\n    if (_hr !== '/') {\n        app.use((req, res, next) => {\n            if ((req.url.startsWith('/hexopro/') || req.url.startsWith('/pro/')) && !req.url.startsWith(_hr)) {\n                req.url = _hr + req.url.substring(1);\n            }\n            next();\n        });\n    }\n\n    app.use((req, res, next) => {\n        if (!req.query`;
+  // Add URL rewrite for frontend API calls (only if not already present)
+  if (!c.includes('const _hr')) {
+    const anchor = "    app.use((req, res, next) => {\n        if (!req.query";
+    const rewrite = `    // Rewrite /hexopro/* and /pro/* to include root prefix\n    const _hr = hexo.config.root || '/';\n    if (_hr !== '/') {\n        app.use((req, res, next) => {\n            if ((req.url.startsWith('/hexopro/') || req.url.startsWith('/pro/')) && !req.url.startsWith(_hr)) {\n                req.url = _hr + req.url.substring(1);\n            }\n            next();\n        });\n    }\n\n    app.use((req, res, next) => {\n        if (!req.query`;
 
-  if (c.includes(anchor)) {
-    c = c.replace(anchor, rewrite);
+    if (c.includes(anchor)) {
+      c = c.replace(anchor, rewrite);
+    }
   }
 
   if (c !== before) {
