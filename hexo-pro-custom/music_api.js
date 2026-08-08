@@ -23,32 +23,37 @@ function saveMusicData(hexo, data) {
 }
 
 // Parse tracks metadata from source/js/sidebar-music.js
-function parseSidebarTracks(hexo) {
+function parseSidebarTracks(hexo, root) {
   const tracksFile = path.join(hexo.base_dir, 'source', 'js', 'sidebar-music.js');
   if (!fs.existsSync(tracksFile)) return [];
   const content = fs.readFileSync(tracksFile, 'utf8');
   const tracks = [];
-  // Match: { name: 'xxx', artist: 'xxx', url: root + 'music/xxx.mp3', cover: root + 'music/covers/xxx.jpg' }
-  const regex = /\{\s*name:\s*['"](.+?)['"]\s*,\s*artist:\s*['"](.+?)['"]\s*,\s*url:\s*root\s*\+\s*['"](.+?)['"]\s*,\s*cover:\s*root\s*\+\s*['"](.+?)['"]/g;
-  let m;
-  while ((m = regex.exec(content)) !== null) {
-    const urlPath = m[3]; // e.g. /music/bg-music.mp3
-    const filename = path.basename(urlPath);
-    const coverPath = m[4].startsWith('/') ? root.slice(0,-1) + m[4] : root + m[4];
-    tracks.push({ name: m[1], artist: m[2], filename: filename, cover: coverPath });
+  // Parse each track entry: { name: 'xxx', artist: 'xxx', url: root + 'music/xxx.mp3', cover: root + 'music/covers/xxx.jpg' }
+  const trackBlocks = content.split(/\{/g).filter(b => b.includes("name:") && b.includes("artist:") && b.includes("url:"));
+  for (const block of trackBlocks) {
+    const nameM = block.match(/name:\s*'([^']+)'/);
+    const artistM = block.match(/artist:\s*'([^']+)'/);
+    const urlM = block.match(/url:\s*root\s*\+\s*'([^']+)'/);
+    const coverM = block.match(/cover:\s*root\s*\+\s*'([^']+)'/);
+    if (nameM && urlM) {
+      const urlPath = urlM[1];
+      const filename = path.basename(urlPath);
+      const coverPath = coverM ? (coverM[1].startsWith('/') ? root.slice(0,-1) + coverM[1] : root + coverM[1]) : '';
+      tracks.push({ name: nameM[1], artist: artistM ? artistM[1] : '', filename: filename, cover: coverPath });
+    }
   }
   return tracks;
 }
 
 // Scan source/music for MP3 files, merge with sidebar metadata
-function scanExistingFiles(hexo) {
+function scanExistingFiles(hexo, root) {
   const musicDir = path.join(hexo.base_dir, MUSIC_DIR);
   const coverDir = path.join(hexo.base_dir, COVER_DIR);
   const data = loadMusicData(hexo);
   const existingFilenames = new Set(data.songs.map(s => s.filename));
 
   // Get metadata from sidebar-music.js
-  const sidebarTracks = parseSidebarTracks(hexo);
+  const sidebarTracks = parseSidebarTracks(hexo, root);
   const sidebarMeta = {};
   for (const t of sidebarTracks) {
     sidebarMeta[t.filename] = t;
@@ -129,7 +134,7 @@ module.exports = async function (app, hexo) {
   // List all songs (scan existing files first)
   app.use(apiBase + '/list', function (req, res) {
     if (req.method !== 'GET') return;
-    const data = scanExistingFiles(hexo);
+    const data = scanExistingFiles(hexo, root);
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.end(JSON.stringify({ code: 0, data: data.songs }));
   });
