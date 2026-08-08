@@ -142,20 +142,25 @@ module.exports = async function (app, hexo) {
 
   // Add song by URL
   app.use(apiBase + '/add-url', function (req, res) {
-    let body = '';
-    req.on('data', chunk => body += chunk);
-    req.on('end', () => {
+    function processAddUrl(data) {
       try {
-        const { title, artist, cover, url } = JSON.parse(body);
+        const { title, artist, cover, url } = data;
         if (!title || !url) { res.setHeader('Content-Type', 'application/json'); return res.end(JSON.stringify({ code: 1, msg: 'title and url required' })); }
-        const data = loadMusicData(hexo);
+        const songData = loadMusicData(hexo);
         const newSong = { id: Date.now().toString(36) + Math.random().toString(36).substring(2, 6), title, artist: artist || '', cover: cover || '', url, filename: url.split('/').pop().split('?')[0], createdAt: new Date().toISOString() };
-        data.songs.push(newSong);
-        saveMusicData(hexo, data); syncToSidebarMusic(hexo, data, root);
+        songData.songs.push(newSong);
+        saveMusicData(hexo, songData); syncToSidebarMusic(hexo, songData, root);
         res.setHeader('Content-Type', 'application/json; charset=utf-8');
         res.end(JSON.stringify({ code: 0, data: newSong }));
       } catch (e) { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ code: 1, msg: e.message })); }
-    });
+    }
+    if (req.body && req.body.title) {
+      processAddUrl(req.body);
+    } else {
+      let body = '';
+      req.on('data', chunk => body += chunk);
+      req.on('end', () => { try { processAddUrl(JSON.parse(body)); } catch (e) { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ code: 1, msg: e.message })); } });
+    }
   });
 
   // Upload cover
@@ -170,22 +175,27 @@ module.exports = async function (app, hexo) {
 
   // Update song
   app.use(apiBase + '/update', function (req, res) {
-    let body = '';
-    req.on('data', chunk => body += chunk);
-    req.on('end', () => {
+    function processUpdate(data) {
       try {
-        const { id, title, artist, cover } = JSON.parse(body);
-        const data = loadMusicData(hexo);
-        const song = data.songs.find(s => s.id === id);
+        const { id, title, artist, cover } = data;
+        const songData = loadMusicData(hexo);
+        const song = songData.songs.find(s => s.id === id);
         if (!song) { res.setHeader('Content-Type', 'application/json'); return res.end(JSON.stringify({ code: 1, msg: 'Not found' })); }
         if (title !== undefined) song.title = title;
         if (artist !== undefined) song.artist = artist;
         if (cover !== undefined) song.cover = cover;
-        saveMusicData(hexo, data); syncToSidebarMusic(hexo, data, root);
+        saveMusicData(hexo, songData); syncToSidebarMusic(hexo, songData, root);
         res.setHeader('Content-Type', 'application/json; charset=utf-8');
         res.end(JSON.stringify({ code: 0, data: song }));
       } catch (e) { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ code: 1, msg: e.message })); }
-    });
+    }
+    if (req.body && req.body.id) {
+      processUpdate(req.body);
+    } else {
+      let body = '';
+      req.on('data', chunk => body += chunk);
+      req.on('end', () => { try { processUpdate(JSON.parse(body)); } catch (e) { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ code: 1, msg: e.message })); } });
+    }
   });
 
   // Delete song (use POST to avoid middleware issues)
