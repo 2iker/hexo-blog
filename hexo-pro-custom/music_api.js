@@ -34,7 +34,7 @@ function parseSidebarTracks(hexo) {
   while ((m = regex.exec(content)) !== null) {
     const urlPath = m[3]; // e.g. /music/bg-music.mp3
     const filename = path.basename(urlPath);
-    const coverPath = m[4].startsWith('/') ? m[4] : '/' + m[4];
+    const coverPath = m[4].startsWith('/') ? root.slice(0,-1) + m[4] : root + m[4];
     tracks.push({ name: m[1], artist: m[2], filename: filename, cover: coverPath });
   }
   return tracks;
@@ -66,7 +66,7 @@ function scanExistingFiles(hexo) {
     if (fs.existsSync(coverDir)) {
       const covers = fs.readdirSync(coverDir);
       const match = covers.find(c => c.startsWith(baseName) || c.includes(baseName));
-      if (match) cover = '/music/covers/' + match;
+      if (match) cover = root + 'music/covers/' + match;
     }
     // Use sidebar metadata if available
     const meta = sidebarMeta[file] || {};
