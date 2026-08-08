@@ -5,9 +5,18 @@
       "title": "烟火里的尘埃",
       "artist": "黄霄雲",
       "cover": "/hexo-blog/music/covers/bg-music.jpg",
-      "url": "/music/bg-music.mp3",
+      "url": "/hexo-blog/music/bg-music.mp3",
       "filename": "bg-music.mp3",
       "createdAt": "2026-08-08T20:06:00.782Z"
+    },
+    {
+      "id": "mskv1fg5ptp6",
+      "title": "海屿你",
+      "artist": "马也_Crabbit",
+      "cover": "http://p1.music.126.net/RfguLkQJ8aMVkiIaxdy70Q==/109951170483263672.jpg",
+      "url": "http://music.163.com/song/media/outer/url?id=1973665667.mp3",
+      "filename": "url",
+      "createdAt": "2026-08-08T21:02:53.813Z"
     }
   ]
 }

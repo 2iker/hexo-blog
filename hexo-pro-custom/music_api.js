@@ -60,7 +60,7 @@ function scanExistingFiles(hexo, root) {
     data.songs.push({
       id: Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
       title: meta.name || baseName, artist: meta.artist || '', cover: meta.cover || cover,
-      url: '/music/' + file, filename: file, createdAt: new Date().toISOString()
+      url: root + 'music/' + file, filename: file, createdAt: new Date().toISOString()
     });
     changed = true;
   }
