@@ -34,7 +34,8 @@ function parseSidebarTracks(hexo) {
   while ((m = regex.exec(content)) !== null) {
     const urlPath = m[3]; // e.g. /music/bg-music.mp3
     const filename = path.basename(urlPath);
-    tracks.push({ name: m[1], artist: m[2], filename: filename, cover: m[4] });
+    const coverPath = m[4].startsWith('/') ? m[4] : '/' + m[4];
+    tracks.push({ name: m[1], artist: m[2], filename: filename, cover: coverPath });
   }
   return tracks;
 }

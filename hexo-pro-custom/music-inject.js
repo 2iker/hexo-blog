@@ -1,6 +1,7 @@
 (function(){
 var root=(window.__hexoProBase||'/pro').replace(/\/pro$/,'/');
 var musicUrl=root+'pro/music.html';
+var musicActive=false;
 
 function injectSidebarItem(){
   var menu=document.querySelector('ul.ant-menu.ant-menu-root');
@@ -18,23 +19,38 @@ function injectSidebarItem(){
   li.onclick=function(e){
     e.preventDefault();
     e.stopPropagation();
+    if(musicActive)return;
     showMusicPage();
   };
 
   var items=menu.querySelectorAll('.ant-menu-item, .ant-menu-submenu');
   var lastItem=items[items.length-1];
   if(lastItem){menu.insertBefore(li,lastItem.nextSibling||null);}else{menu.appendChild(li);}
+
+  // Intercept clicks on ALL other sidebar items to close music page
+  menu.addEventListener('click',function(e){
+    if(!musicActive)return;
+    var clickedItem=e.target.closest('.ant-menu-item');
+    if(!clickedItem)return;
+    // If clicked music item, do nothing (already handled)
+    if(clickedItem.getAttribute('data-menu-id')==='music-management')return;
+    // Close music page and let React handle navigation
+    closeMusicPage();
+  },true);
+
   return true;
 }
 
 function showMusicPage(){
-  // Remove existing music iframe container
-  var existing=document.getElementById('musicPageContainer');
-  if(existing)existing.remove();
+  if(musicActive)return;
+  musicActive=true;
 
   // Hide React content
   var content=document.querySelector('.ant-layout-content')||document.querySelector('[class*="content"]');
-  if(content)content.style.display='none';
+  if(content){
+    content.dataset.musicHidden='true';
+    content.style.display='none';
+  }
 
   // Create full-page container
   var container=document.createElement('div');
@@ -46,34 +62,42 @@ function showMusicPage(){
   iframe.style.cssText='width:100%;height:100%;border:none;';
   container.appendChild(iframe);
 
-  // Insert after sidebar
+  // Insert into layout
   var layout=document.querySelector('.ant-layout')||document.body;
   layout.appendChild(container);
 
-  // Highlight menu item
+  // Highlight music menu item
   document.querySelectorAll('.ant-menu-item').forEach(function(item){
     item.classList.remove('ant-menu-item-selected');
   });
   var musicItem=document.querySelector('[data-menu-id="music-management"]');
   if(musicItem)musicItem.classList.add('ant-menu-item-selected');
 
-  // Listen for back navigation from iframe
-  window.addEventListener('message',function handler(e){
+  // Listen for back from iframe
+  window._musicMessageHandler=function(e){
     if(e.data==='closeMusicPage'){
       closeMusicPage();
-      window.removeEventListener('message',handler);
     }
-  });
+  };
+  window.addEventListener('message',window._musicMessageHandler);
 }
 
 window.closeMusicPage=function(){
+  if(!musicActive)return;
+  musicActive=false;
   var container=document.getElementById('musicPageContainer');
   if(container)container.remove();
   var content=document.querySelector('.ant-layout-content')||document.querySelector('[class*="content"]');
-  if(content)content.style.display='';
-  // Remove highlight
+  if(content&&content.dataset.musicHidden==='true'){
+    content.style.display='';
+    delete content.dataset.musicHidden;
+  }
   var musicItem=document.querySelector('[data-menu-id="music-management"]');
   if(musicItem)musicItem.classList.remove('ant-menu-item-selected');
+  if(window._musicMessageHandler){
+    window.removeEventListener('message',window._musicMessageHandler);
+    window._musicMessageHandler=null;
+  }
 };
 
 // Injection loop
