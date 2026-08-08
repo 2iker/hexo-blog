@@ -160,6 +160,25 @@ module.exports = async function (app, hexo) {
     });
   });
 
+  // Add song by URL (no file upload)
+  app.use(apiBase + '/add-url', function (req, res) {
+    if (req.method !== 'POST') return;
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      try {
+        const { title, artist, cover, url } = JSON.parse(body);
+        if (!title || !url) { res.setHeader('Content-Type', 'application/json'); return res.end(JSON.stringify({ code: 1, msg: 'title and url required' })); }
+        const data = loadMusicData(hexo);
+        const newSong = { id: Date.now().toString(36) + Math.random().toString(36).substring(2, 6), title: title, artist: artist || '', cover: cover || '', url: url, filename: url.split('/').pop().split('?')[0], createdAt: new Date().toISOString() };
+        data.songs.push(newSong);
+        saveMusicData(hexo, data);
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+        res.end(JSON.stringify({ code: 0, data: newSong }));
+      } catch (e) { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ code: 1, msg: e.message })); }
+    });
+  });
+
   // Upload cover
   app.use(apiBase + '/upload-cover', function (req, res) {
     if (req.method !== 'POST') return;

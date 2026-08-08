@@ -94,12 +94,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
       </div>
       <div id="coverPreview" style="margin-top:8px;display:none"><img id="coverPreviewImg" style="width:60px;height:60px;border-radius:6px;object-fit:cover"></div>
     </div>
-    <div class="form-group"><label class="form-label">MP3 文件 *</label>
-      <div class="upload-file-area" id="uploadFileArea" onclick="document.getElementById('uploadFileInput').click()">
-        <div id="uploadFileInfo">📁 点击选择 MP3 文件</div>
-        <input type="file" id="uploadFileInput" accept="audio/*" style="display:none">
+    <div class="form-group"><label class="form-label">MP3 文件</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="upload-file-area" id="uploadFileArea" onclick="document.getElementById('uploadFileInput').click()" style="flex:1">
+          <div id="uploadFileInfo">📁 点击选择 MP3 文件</div>
+          <input type="file" id="uploadFileInput" accept="audio/*" style="display:none">
+        </div>
       </div>
     </div>
+    <div class="form-group"><label class="form-label">或填写音乐链接</label><input type="text" id="uploadUrl" class="form-input" placeholder="https://example.com/song.mp3"></div>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
       <button class="btn btn-default" onclick="hideUploadForm()">取消</button>
       <button class="btn btn-primary" id="uploadSubmitBtn" onclick="submitUpload()">上传</button>
@@ -243,13 +246,26 @@ async function uploadCoverImage(file){
 async function submitUpload(){
   const title=document.getElementById('uploadTitle').value.trim();
   if(!title){toast('请输入歌曲标题','error');return;}
-  if(!uploadFile){toast('请选择 MP3 文件','error');return;}
+  const urlInput=document.getElementById('uploadUrl').value.trim();
+  if(!uploadFile&&!urlInput){toast('请选择 MP3 文件或填写音乐链接','error');return;}
   // Upload cover image if local file selected
   let coverUrl=document.getElementById('uploadCover').value.trim();
   if(uploadCoverFile){
     try{coverUrl=await uploadCoverImage(uploadCoverFile);}
     catch(e){toast('封面上传失败: '+e.message,'error');return;}
   }
+  // If URL provided (no file), submit as URL song
+  if(urlInput&&!uploadFile){
+    const data={title:title,artist:document.getElementById('uploadArtist').value.trim(),cover:coverUrl,url:urlInput,filename:urlInput.split('/').pop().split('?')[0]};
+    try{
+      const res=await fetch(API_BASE+'/add-url',{method:'POST',headers:{'Authorization':'Bearer '+getToken(),'Content-Type':'application/json'},body:JSON.stringify(data)});
+      const json=await res.json();
+      if(json.code===0){toast('添加成功','success');songs.push(json.data);renderSongs();hideUploadForm();}
+      else toast('添加失败: '+json.msg,'error');
+    }catch(e){toast('添加出错','error');}
+    return;
+  }
+  // If file selected, upload file
   const fd=new FormData();
   fd.append('file',uploadFile);
   fd.append('title',title);
