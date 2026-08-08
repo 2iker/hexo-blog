@@ -139,6 +139,8 @@ module.exports = async function (app, hexo) {
     res.end(JSON.stringify({ code: 0, data: data.songs }));
   });
 
+  const uploadMp3 = multer({ storage: mp3Storage, limits: { fileSize: 50 * 1024 * 1024 } });
+
   // Upload MP3
   app.use(apiBase + '/upload', function (req, res) {
     if (req.method !== 'POST') return;
@@ -147,7 +149,10 @@ module.exports = async function (app, hexo) {
       if (!req.file) { res.setHeader('Content-Type', 'application/json'); return res.end(JSON.stringify({ code: 1, msg: 'No file' })); }
       const filename = req.file.filename;
       const data = loadMusicData(hexo);
-      const newSong = { id: Date.now().toString(36) + Math.random().toString(36).substring(2, 6), title: path.basename(filename, path.extname(filename)), artist: '', cover: '', url: root + 'music/' + filename, filename: filename, createdAt: new Date().toISOString() };
+      const title = (req.body && req.body.title) || path.basename(filename, path.extname(filename));
+      const artist = (req.body && req.body.artist) || '';
+      const cover = (req.body && req.body.cover) || '';
+      const newSong = { id: Date.now().toString(36) + Math.random().toString(36).substring(2, 6), title: title, artist: artist, cover: cover, url: root + 'music/' + filename, filename: filename, createdAt: new Date().toISOString() };
       data.songs.push(newSong);
       saveMusicData(hexo, data);
       res.setHeader('Content-Type', 'application/json; charset=utf-8');
