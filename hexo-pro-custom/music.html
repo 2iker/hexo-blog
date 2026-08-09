@@ -301,8 +301,6 @@ function playerClickProgress(e){const r=e.currentTarget.getBoundingClientRect();
 // Song list progress bar
 let isDragging=false;
 function startDrag(e,id){
-  const dur=durations[id];
-  if(!dur)return;
   isDragging=true;
   e.preventDefault();
   const prog=e.currentTarget;
@@ -312,7 +310,7 @@ function startDrag(e,id){
     const fill=prog.querySelector('.song-progress-fill');
     if(fill)fill.style.width=(pct*100)+'%';
     if(currentSong&&currentSong.id===id&&audio.duration){
-      audio.currentTime=pct*dur;
+      audio.currentTime=pct*audio.duration;
     }
   }
   function onUp(){
