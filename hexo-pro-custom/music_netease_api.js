@@ -48,7 +48,7 @@ module.exports = function (app, hexo) {
     }
   });
 
-  // Get song URL
+  // Get song URL (v1 with quality levels)
   app.use(apiBase + '/song-url', async function (req, res) {
     if (req.method !== 'GET') return;
     const id = req.query.id;
@@ -57,7 +57,7 @@ module.exports = function (app, hexo) {
       return res.end(JSON.stringify({ code: 1, msg: 'id required' }));
     }
     try {
-      const data = await fetchJSON(API_BASE + '/song/url?id=' + id + '&br=320000');
+      const data = await fetchJSON(API_BASE + '/song/url/v1?id=' + id + '&level=exhigh');
       const url = data.data && data.data[0] && data.data[0].url || '';
       res.setHeader('Content-Type', 'application/json; charset=utf-8');
       res.end(JSON.stringify({ code: 0, data: { url: url } }));
