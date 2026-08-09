@@ -279,10 +279,8 @@ async function uploadCoverImage(file){
 }
 
 async function submitForm(){
-  console.log('submitForm called');
   const id=document.getElementById('formId').value;
   const title=document.getElementById('formSongTitle').value.trim();
-  console.log('title:',title,'id:',id);
   if(!title){toast('请输入歌曲标题','error');return;}
   // Upload cover if local file selected
   let coverUrl=document.getElementById('formCover').value.trim();
@@ -300,7 +298,6 @@ async function submitForm(){
   }
   // Add mode - URL
   const urlInput=document.getElementById('formUrl').value.trim();
-  console.log('urlInput:',urlInput,'editFile:',editFile);
   if(urlInput&&!editFile){
     const data={title,artist:document.getElementById('formArtist').value.trim(),cover:coverUrl,url:urlInput};
     try{
@@ -312,7 +309,7 @@ async function submitForm(){
     return;
   }
   // Add mode - file
-  if(!editFile){toast('请选择文件或填写链接','error');return;}
+  if(!editFile){toast('请填写音乐链接或选择MP3文件','error');return;}
   const fd=new FormData();fd.append('file',editFile);fd.append('title',title);
   fd.append('artist',document.getElementById('formArtist').value.trim());fd.append('cover',coverUrl);
   try{
@@ -424,9 +421,15 @@ function selectSearchResult(idx){
   if(s.cover)document.getElementById('formCover').value=s.cover;
   document.getElementById('searchDropdown').style.display='none';
   document.getElementById('searchListWrap').style.display='none';
+  document.getElementById('formUrl').value='获取中...';
   fetch(API_BASE+'/song-url?id='+s.id).then(r=>r.json()).then(json=>{
-    if(json.code===0&&json.data.url){document.getElementById('formUrl').value=json.data.url;}
-  }).catch(()=>{});
+    if(json.code===0&&json.data.url){
+      document.getElementById('formUrl').value=json.data.url;
+    }else{
+      document.getElementById('formUrl').value='';
+      toast('该歌曲需要VIP，无法获取链接，请手动填写','error');
+    }
+  }).catch(()=>{document.getElementById('formUrl').value='';toast('获取链接失败','error');});
 }
 document.addEventListener('click',function(e){
   if(!e.target.closest('#formSongTitle')&&!e.target.closest('#searchDropdown')&&!e.target.closest('#searchedList')){
