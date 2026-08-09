@@ -308,11 +308,12 @@ function seekSong(e,id){
 let draggingId=null;
 function startDrag(e,id){
   if(!currentSong||currentSong.id!==id||!audio.duration)return;
+  e.preventDefault();
   draggingId=id;
+  const prog=document.getElementById('prog-'+id);
   const onMove=(ev)=>{
-    const prog=document.getElementById('prog-'+id);
     if(!prog)return;
-    const r=prog.parentElement.getBoundingClientRect();
+    const r=prog.getBoundingClientRect();
     const pct=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width));
     prog.style.width=(pct*100)+'%';
     audio.currentTime=pct*audio.duration;
@@ -322,6 +323,7 @@ function startDrag(e,id){
   document.addEventListener('mouseup',onUp);
 }
 audio.ontimeupdate=()=>{
+  if(draggingId)return;
   const pct=audio.duration?(audio.currentTime/audio.duration*100):0;
   document.getElementById('progressFill').style.width=pct+'%';
   document.getElementById('playerTime').textContent=fmtTime(audio.currentTime)+' / '+fmtTime(audio.duration||0);
