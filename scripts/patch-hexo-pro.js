@@ -141,11 +141,11 @@ if (fs.existsSync(apiFile)) {
   if (!a.includes("require('./music_api')")) {
     a = a.replace(
       "const theme_api = require('./theme_api'); // 主题市场API",
-      "const theme_api = require('./theme_api'); // 主题市场API\nconst music_api = require('./music_api'); // 音乐管理API"
+      "const theme_api = require('./theme_api'); // 主题市场API\nconst music_api = require('./music_api'); // 音乐管理API\nconst music_netease_api = require('./music_netease_api'); // 网易云音乐搜索API"
     );
     a = a.replace(
       "theme_api(app, hexo, use, db); // 注册主题市场API",
-      "theme_api(app, hexo, use, db); // 注册主题市场API\n        music_api(app, hexo); // 注册音乐管理API"
+      "theme_api(app, hexo, use, db); // 注册主题市场API\n        music_api(app, hexo); // 注册音乐管理API\n        music_netease_api(app, hexo); // 注册网易云音乐搜索API"
     );
   }
   // Add body-parser for root-prefixed path (fix 400 error on post/update)
