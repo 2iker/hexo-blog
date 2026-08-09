@@ -174,7 +174,7 @@ function renderSongs(){
     return '<div class="song-item">'+coverHtml+
       '<div class="song-info"><div class="song-title">'+esc(s.title)+'</div>'+
       '<div class="song-meta"><span>'+(s.artist?esc(s.artist):'未知歌手')+'</span></div></div>'+
-      '<div class="song-progress" onclick="seekSong(event,\''+s.id+'\')" onmousedown="startDrag(event,\''+s.id+'\')"><div class="song-progress-fill" id="prog-'+s.id+'" style="width:'+pct+'%"></div></div>'+
+      '<div class="song-progress" onmousedown="startDrag(event,\''+s.id+'\')"><div class="song-progress-fill" id="prog-'+s.id+'" style="width:'+pct+'%"></div></div>'+
       '<div class="song-time" id="time-'+s.id+'">'+timeText+'</div>'+
       '<div class="song-actions">'+playBtn+
       '<button class="btn btn-default btn-sm" onclick="editSong(\''+s.id+'\')">编辑</button>'+
@@ -300,16 +300,6 @@ function playerClickProgress(e){const r=e.currentTarget.getBoundingClientRect();
 
 // Song list progress bar
 let isDragging=false;
-function seekSong(e,id){
-  if(isDragging)return;
-  const dur=durations[id];
-  if(!dur)return;
-  const r=e.currentTarget.getBoundingClientRect();
-  const pct=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));
-  if(currentSong&&currentSong.id===id){
-    audio.currentTime=pct*dur;
-  }
-}
 function startDrag(e,id){
   const dur=durations[id];
   if(!dur)return;
