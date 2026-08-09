@@ -1,0 +1,9 @@
+{
+  "repository": "2iker/hexo-blog",
+  "branch": "main",
+  "message": "Site updated: {{ now(\"YYYY-MM-DD HH:mm:ss\") }}",
+  "enabledPlatforms": [
+    "github"
+  ],
+  "lastDeployTime": "2026-08-09T05:33:16.716Z"
+}
