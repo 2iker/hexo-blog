@@ -299,6 +299,7 @@ function playerStop(){audio.pause();audio.currentTime=0;document.getElementById(
 function playerClickProgress(e){const r=e.currentTarget.getBoundingClientRect();audio.currentTime=(e.clientX-r.left)/r.width*(audio.duration||0);}
 
 // Song list progress bar
+let isDragging=false;
 function seekSong(e,id){
   const dur=durations[id];
   if(!dur)return;
@@ -313,6 +314,7 @@ function startDrag(e,id){
   if(!dur)return;
   e.preventDefault();
   e.stopPropagation();
+  isDragging=true;
   const prog=e.currentTarget;
   const onMove=(ev)=>{
     const r=prog.getBoundingClientRect();
@@ -322,11 +324,12 @@ function startDrag(e,id){
       audio.currentTime=pct*dur;
     }
   };
-  const onUp=()=>{document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);};
+  const onUp=()=>{isDragging=false;document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);};
   document.addEventListener('mousemove',onMove);
   document.addEventListener('mouseup',onUp);
 }
 audio.ontimeupdate=()=>{
+  if(isDragging)return;
   const pct=audio.duration?(audio.currentTime/audio.duration*100):0;
   document.getElementById('progressFill').style.width=pct+'%';
   document.getElementById('playerTime').textContent=fmtTime(audio.currentTime)+' / '+fmtTime(audio.duration||0);
