@@ -267,7 +267,7 @@ async function submitForm(){
     try{
       const res=await fetch(API_BASE+'/add-url',{method:'POST',headers:{'Authorization':'Bearer '+getToken(),'Content-Type':'application/json'},body:JSON.stringify(data)});
       const json=await res.json();
-      if(json.code===0){toast('添加成功','success');songs.push(json.data);renderSongs();hideForm();}
+      if(json.code===0){toast('添加成功','success');songs.push(json.data);loadDurations();renderSongs();hideForm();}
       else toast('添加失败','error');
     }catch(e){toast('添加出错','error');}
     return;
@@ -279,7 +279,7 @@ async function submitForm(){
   try{
     const res=await fetch(API_BASE+'/upload',{method:'POST',headers:{'Authorization':'Bearer '+getToken()},body:fd});
     const json=await res.json();
-    if(json.code===0){toast('上传成功','success');songs.push(json.data);renderSongs();hideForm();}
+    if(json.code===0){toast('上传成功','success');songs.push(json.data);loadDurations();renderSongs();hideForm();}
     else toast('上传失败','error');
   }catch(e){toast('上传出错','error');}
 }
