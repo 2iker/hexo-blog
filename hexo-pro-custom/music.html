@@ -301,6 +301,7 @@ function playerClickProgress(e){const r=e.currentTarget.getBoundingClientRect();
 // Song list progress bar
 let isDragging=false;
 function seekSong(e,id){
+  if(isDragging)return;
   const dur=durations[id];
   if(!dur)return;
   const r=e.currentTarget.getBoundingClientRect();
@@ -312,19 +313,23 @@ function seekSong(e,id){
 function startDrag(e,id){
   const dur=durations[id];
   if(!dur)return;
-  e.preventDefault();
-  e.stopPropagation();
   isDragging=true;
+  e.preventDefault();
   const prog=e.currentTarget;
-  const onMove=(ev)=>{
+  function onMove(ev){
     const r=prog.getBoundingClientRect();
     const pct=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width));
-    prog.querySelector('.song-progress-fill').style.width=(pct*100)+'%';
-    if(currentSong&&currentSong.id===id){
+    const fill=prog.querySelector('.song-progress-fill');
+    if(fill)fill.style.width=(pct*100)+'%';
+    if(currentSong&&currentSong.id===id&&audio.duration){
       audio.currentTime=pct*dur;
     }
-  };
-  const onUp=()=>{isDragging=false;document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);};
+  }
+  function onUp(){
+    isDragging=false;
+    document.removeEventListener('mousemove',onMove);
+    document.removeEventListener('mouseup',onUp);
+  }
   document.addEventListener('mousemove',onMove);
   document.addEventListener('mouseup',onUp);
 }
