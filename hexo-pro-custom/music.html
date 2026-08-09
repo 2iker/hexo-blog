@@ -94,6 +94,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
       <input type="text" id="formSongTitle" class="form-input" placeholder="输入歌曲标题，自动搜索" oninput="debounceSearch()">
       <div id="searchDropdown" style="display:none;position:absolute;z-index:10;background:#fff;border:1px solid #d9d9d9;border-radius:6px;width:calc(100% - 40px);max-height:200px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,.15);margin-top:4px"></div>
     </div>
+    <div id="searchListWrap" style="display:none;margin-bottom:14px">
+      <label class="form-label">搜索结果（滚动加载更多）</label>
+      <div id="searchedList" style="max-height:240px;overflow-y:auto;border:1px solid #e8e8e8;border-radius:6px"></div>
+    </div>
     <div class="form-group"><label class="form-label">歌手</label><input type="text" id="formArtist" class="form-input" placeholder="输入歌手名称"></div>
     <div class="form-group"><label class="form-label">封面图片</label>
       <div style="display:flex;gap:8px;align-items:center">
@@ -227,6 +231,8 @@ function showSearchForm(){
   document.getElementById('uploadFileArea').classList.remove('has-file');
   document.getElementById('coverPreview').style.display='none';
   document.getElementById('formTitle').textContent='搜索添加歌曲';
+  searchOffset=0;searchHasMore=true;searchedList=[];
+  document.getElementById('searchedList').innerHTML='<div class="empty">输入关键词搜索歌曲</div>';
   document.getElementById('formSongTitle').focus();
 }
 function hideForm(){document.getElementById('formOverlay').classList.remove('active');}
@@ -369,47 +375,58 @@ audio.onpause=()=>{document.getElementById('playerPlayBtn').textContent='▶';};
 audio.onplay=()=>{document.getElementById('playerPlayBtn').textContent='⏸';};
 
 // Search
-let searchTimer=null;
-let searchResults=[];
+let searchTimer=null,searchOffset=0,searchHasMore=true,searchedList=[],searchLoading=false,searchKeywords='';
 function debounceSearch(){
   clearTimeout(searchTimer);
   const val=document.getElementById('formSongTitle').value.trim();
-  if(val.length<2){document.getElementById('searchDropdown').style.display='none';return;}
-  searchTimer=setTimeout(()=>autoSearch(val),500);
+  if(val.length<2){document.getElementById('searchDropdown').style.display='none';document.getElementById('searchListWrap').style.display='none';return;}
+  searchTimer=setTimeout(()=>{searchOffset=0;searchHasMore=true;searchedList=[];autoSearch(val,true);},500);
 }
-async function autoSearch(keywords){
+async function autoSearch(keywords,replace){
+  if(searchLoading)return;
+  searchLoading=true;
+  searchKeywords=keywords;
   try{
-    const res=await fetch(API_BASE+'/search?keywords='+encodeURIComponent(keywords));
+    const res=await fetch(API_BASE+'/search?keywords='+encodeURIComponent(keywords)+'&limit=10&offset='+searchOffset);
     const json=await res.json();
-    if(json.code!==0||!json.data||!json.data.length){
-      document.getElementById('searchDropdown').style.display='none';
-      return;
+    searchLoading=false;
+    if(json.code!==0||!json.data||!json.data.length){searchHasMore=false;if(replace)document.getElementById('searchedList').innerHTML='<div class="empty">未找到相关歌曲</div>';return;}
+    if(json.data.length<10)searchHasMore=false;
+    if(replace)searchedList=json.data;else searchedList=searchedList.concat(json.data);
+    searchOffset+=json.data.length;
+    renderSearchList();
+  }catch(e){searchLoading=false;}
+}
+function renderSearchList(){
+  const dd=document.getElementById('searchedList');
+  document.getElementById('searchListWrap').style.display='block';
+  dd.innerHTML=searchedList.map((s,i)=>'<div class="search-item" onclick="selectSearchResult('+i+')">'+
+    (s.cover?'<img class="search-item-cover" src="'+esc(s.cover)+'" onerror="this.style.display=\'none\'">':'<div class="search-item-cover" style="display:flex;align-items:center;justify-content:center;font-size:16px">♪</div>')+
+    '<div class="search-item-info"><div class="search-item-name">'+esc(s.name)+'</div>'+
+    '<div class="search-item-artist">'+esc(s.artist)+(s.album?' · '+esc(s.album):'')+'</div></div></div>').join('')+
+    (searchHasMore?'<div id="scrollSentinel" style="text-align:center;padding:8px;color:#999;font-size:12px">加载中...</div>':'<div style="text-align:center;padding:8px;color:#999;font-size:12px">没有更多了</div>');
+  // Setup infinite scroll
+  dd.onscroll=function(){
+    if(!searchHasMore||searchLoading)return;
+    if(dd.scrollTop+dd.clientHeight>=dd.scrollHeight-20){
+      autoSearch(searchKeywords,false);
     }
-    searchResults=json.data;
-    const dd=document.getElementById('searchDropdown');
-    dd.innerHTML=json.data.slice(0,8).map((s,i)=>'<div class="search-item" onclick="selectSearchResult('+i+')">'+
-      (s.cover?'<img class="search-item-cover" src="'+esc(s.cover)+'" onerror="this.style.display=\'none\'">':'<div class="search-item-cover" style="display:flex;align-items:center;justify-content:center;font-size:16px">♪</div>')+
-      '<div class="search-item-info"><div class="search-item-name">'+esc(s.name)+'</div>'+
-      '<div class="search-item-artist">'+esc(s.artist)+(s.album?' · '+esc(s.album):'')+'</div></div></div>').join('');
-    dd.style.display='block';
-  }catch(e){}
+  };
 }
 function selectSearchResult(idx){
-  const s=searchResults[idx];
+  const s=searchedList[idx];
   if(!s)return;
   document.getElementById('formSongTitle').value=s.name;
   document.getElementById('formArtist').value=s.artist;
   if(s.cover)document.getElementById('formCover').value=s.cover;
   document.getElementById('searchDropdown').style.display='none';
-  // Auto get song URL
+  document.getElementById('searchListWrap').style.display='none';
   fetch(API_BASE+'/song-url?id='+s.id).then(r=>r.json()).then(json=>{
-    if(json.code===0&&json.data.url){
-      document.getElementById('formUrl').value=json.data.url;
-    }
+    if(json.code===0&&json.data.url){document.getElementById('formUrl').value=json.data.url;}
   }).catch(()=>{});
 }
 document.addEventListener('click',function(e){
-  if(!e.target.closest('#formSongTitle')&&!e.target.closest('#searchDropdown')){
+  if(!e.target.closest('#formSongTitle')&&!e.target.closest('#searchDropdown')&&!e.target.closest('#searchedList')){
     document.getElementById('searchDropdown').style.display='none';
   }
 });
