@@ -225,14 +225,12 @@ function showSearchForm(){
   document.getElementById('formCover').value='';
   document.getElementById('formUrl').value='';
   document.getElementById('formFileArea').style.display='none';
-  document.getElementById('formUrlGroup').style.display='none';
+  document.getElementById('formUrlGroup').style.display='';
   editFile=null;editCoverFile=null;
   document.getElementById('uploadFileInfo').textContent='📁 点击选择 MP3 文件';
   document.getElementById('uploadFileArea').classList.remove('has-file');
   document.getElementById('coverPreview').style.display='none';
   document.getElementById('formTitle').textContent='搜索添加歌曲';
-  searchOffset=0;searchHasMore=true;searchedList=[];
-  document.getElementById('searchedList').innerHTML='<div class="empty">输入关键词搜索歌曲</div>';
   document.getElementById('formSongTitle').focus();
 }
 function hideForm(){document.getElementById('formOverlay').classList.remove('active');}
