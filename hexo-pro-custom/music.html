@@ -279,8 +279,10 @@ async function uploadCoverImage(file){
 }
 
 async function submitForm(){
+  console.log('submitForm called');
   const id=document.getElementById('formId').value;
   const title=document.getElementById('formSongTitle').value.trim();
+  console.log('title:',title,'id:',id);
   if(!title){toast('请输入歌曲标题','error');return;}
   // Upload cover if local file selected
   let coverUrl=document.getElementById('formCover').value.trim();
@@ -298,6 +300,7 @@ async function submitForm(){
   }
   // Add mode - URL
   const urlInput=document.getElementById('formUrl').value.trim();
+  console.log('urlInput:',urlInput,'editFile:',editFile);
   if(urlInput&&!editFile){
     const data={title,artist:document.getElementById('formArtist').value.trim(),cover:coverUrl,url:urlInput};
     try{
