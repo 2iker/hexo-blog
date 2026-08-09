@@ -337,14 +337,12 @@ function playerClickProgress(e){const r=e.currentTarget.getBoundingClientRect();
 // Song list progress bar
 let isDragging=false;
 function startDrag(e,id){
-  isDragging=true;
   e.preventDefault();
+  e.stopPropagation();
   const prog=e.currentTarget;
-  console.log('prog:',prog.className);
   function onMove(ev){
     const r=prog.getBoundingClientRect();
     const pct=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width));
-    console.log('move pct:',pct);
     const fill=prog.querySelector('.song-progress-fill');
     if(fill)fill.style.width=(pct*100)+'%';
     if(currentSong&&currentSong.id===id&&audio.duration){
@@ -352,12 +350,12 @@ function startDrag(e,id){
     }
   }
   function onUp(){
-    isDragging=false;
     document.removeEventListener('mousemove',onMove);
     document.removeEventListener('mouseup',onUp);
   }
-  document.addEventListener('mousemove',onMove);
-  document.addEventListener('mouseup',onUp);
+  document.addEventListener('mousemove',onMove,false);
+  document.addEventListener('mouseup',onUp,false);
+  onMove(e);
 }
 audio.ontimeupdate=()=>{
   if(isDragging)return;
