@@ -34,10 +34,10 @@ module.exports = function (app, hexo) {
       const songs = (data.result && data.result.songs || []).map(s => ({
         id: s.id,
         name: s.name,
-        artist: s.artists.map(a => a.name).join(', '),
-        album: s.album && s.album.name || '',
-        cover: s.album && s.album.artist && s.album.artist.picUrl ? s.album.artist.picUrl + '?param=200y200' : '',
-        duration: s.duration,
+        artist: (s.ar || s.artists || []).map(a => a.name).join(', '),
+        album: s.al && s.al.name || '',
+        cover: s.al && s.al.picUrl ? s.al.picUrl + '?param=200y200' : '',
+        duration: s.dt || s.duration || 0,
         url: ''
       }));
       res.setHeader('Content-Type', 'application/json; charset=utf-8');
