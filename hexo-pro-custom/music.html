@@ -335,9 +335,9 @@ audio.ontimeupdate=()=>{
     if(timeEl)timeEl.textContent=fmtTime(audio.currentTime)+' / '+fmtTime(audio.duration||0);
   }
 };
-audio.onended=()=>{document.getElementById('playerPlayBtn').textContent='▶';renderSongs();};
-audio.onpause=()=>{document.getElementById('playerPlayBtn').textContent='▶';renderSongs();};
-audio.onplay=()=>{document.getElementById('playerPlayBtn').textContent='⏸';renderSongs();};
+audio.onended=()=>{document.getElementById('playerPlayBtn').textContent='▶';};
+audio.onpause=()=>{document.getElementById('playerPlayBtn').textContent='▶';};
+audio.onplay=()=>{document.getElementById('playerPlayBtn').textContent='⏸';};
 
 async function deleteSong(id){
   if(!confirm('确定删除这首歌？'))return;
