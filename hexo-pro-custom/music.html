@@ -323,6 +323,7 @@ async function submitForm(){
 // Player
 function playSong(id){
   const song=songs.find(s=>s.id===id);if(!song)return;
+  if(!song.url||song.url===''){toast('该歌曲无播放链接，请编辑后填写链接','error');return;}
   if(currentSong&&currentSong.id===id){if(audio.paused){audio.play();}else{audio.pause();}renderSongs();return;}
   currentSong=song;audio.src=song.url;audio.play();
   document.getElementById('playerBar').classList.add('active');
