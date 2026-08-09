@@ -337,6 +337,7 @@ function playerClickProgress(e){const r=e.currentTarget.getBoundingClientRect();
 // Song list progress bar
 let isDragging=false;
 function startDrag(e,id){
+  alert('startDrag called: '+id);
   isDragging=true;
   e.preventDefault();
   const prog=e.currentTarget;
