@@ -48,7 +48,7 @@ module.exports = function (app, hexo) {
     }
   });
 
-  // Get song URL (v1 with quality levels)
+  // Get song URL - use direct Netease URL pattern
   app.use(apiBase + '/song-url', async function (req, res) {
     if (req.method !== 'GET') return;
     const id = req.query.id;
@@ -57,8 +57,7 @@ module.exports = function (app, hexo) {
       return res.end(JSON.stringify({ code: 1, msg: 'id required' }));
     }
     try {
-      const data = await fetchJSON(API_BASE + '/song/url/v1?id=' + id + '&level=exhigh');
-      const url = data.data && data.data[0] && data.data[0].url || '';
+      const url = 'https://music.163.com/song/media/outer/url?id=' + id + '.mp3';
       res.setHeader('Content-Type', 'application/json; charset=utf-8');
       res.end(JSON.stringify({ code: 0, data: { url: url } }));
     } catch (e) {
