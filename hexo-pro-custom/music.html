@@ -75,7 +75,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
   <div class="card">
     <div class="card-title">
       <span id="songCount">歌曲列表</span>
-      <button class="btn btn-primary" onclick="showForm()">+ 添加歌曲</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" onclick="showForm()">+ 本地添加</button>
+        <button class="btn btn-default" onclick="showSearchForm()">🔍 搜索添加</button>
+      </div>
     </div>
     <div id="songList" class="song-list">
       <div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">加载中...</div></div>
@@ -103,13 +106,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
       </div>
       <div id="coverPreview" style="margin-top:8px;display:none"><img id="coverPreviewImg" style="width:60px;height:60px;border-radius:6px;object-fit:cover"></div>
     </div>
-    <div class="form-group"><label class="form-label">MP3 文件</label>
+    <div class="form-group" id="formFileArea"><label class="form-label">MP3 文件</label>
       <div class="upload-file-area" id="uploadFileArea" onclick="document.getElementById('formFileInput').click()">
         <div id="uploadFileInfo">📁 点击选择 MP3 文件</div>
         <input type="file" id="formFileInput" accept="audio/*" style="display:none">
       </div>
     </div>
-    <div class="form-group"><label class="form-label">或填写音乐链接</label><input type="text" id="formUrl" class="form-input" placeholder="https://example.com/song.mp3"></div>
+    <div class="form-group" id="formUrlGroup"><label class="form-label">或填写音乐链接</label><input type="text" id="formUrl" class="form-input" placeholder="https://example.com/song.mp3"></div>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
       <button class="btn btn-default" onclick="hideForm()">取消</button>
       <button class="btn btn-primary" id="formSubmitBtn" onclick="submitForm()">保存</button>
@@ -201,11 +204,29 @@ function showForm(id){
   document.getElementById('formArtist').value='';
   document.getElementById('formCover').value='';
   document.getElementById('formUrl').value='';
+  document.getElementById('formFileArea').style.display='';
+  document.getElementById('formUrlGroup').style.display='';
   editFile=null;editCoverFile=null;
   document.getElementById('uploadFileInfo').textContent='📁 点击选择 MP3 文件';
   document.getElementById('uploadFileArea').classList.remove('has-file');
   document.getElementById('coverPreview').style.display='none';
-  document.getElementById('formTitle').textContent='添加歌曲';
+  document.getElementById('formTitle').textContent='本地添加歌曲';
+  document.getElementById('formSongTitle').focus();
+}
+function showSearchForm(){
+  document.getElementById('formOverlay').classList.add('active');
+  document.getElementById('formId').value='';
+  document.getElementById('formSongTitle').value='';
+  document.getElementById('formArtist').value='';
+  document.getElementById('formCover').value='';
+  document.getElementById('formUrl').value='';
+  document.getElementById('formFileArea').style.display='none';
+  document.getElementById('formUrlGroup').style.display='none';
+  editFile=null;editCoverFile=null;
+  document.getElementById('uploadFileInfo').textContent='📁 点击选择 MP3 文件';
+  document.getElementById('uploadFileArea').classList.remove('has-file');
+  document.getElementById('coverPreview').style.display='none';
+  document.getElementById('formTitle').textContent='搜索添加歌曲';
   document.getElementById('formSongTitle').focus();
 }
 function hideForm(){document.getElementById('formOverlay').classList.remove('active');}
