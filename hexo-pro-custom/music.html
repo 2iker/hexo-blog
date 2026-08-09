@@ -331,9 +331,9 @@ audio.ontimeupdate=()=>{
   document.getElementById('progressFill').style.width=pct+'%';
   document.getElementById('playerTime').textContent=fmtTime(audio.currentTime)+' / '+fmtTime(audio.duration||0);
   if(currentSong){
-    const prog=document.getElementById('prog-'+currentSong.id);
+    const fill=document.getElementById('prog-'+currentSong.id);
     const timeEl=document.getElementById('time-'+currentSong.id);
-    if(prog)prog.querySelector('.song-progress-fill').style.width=pct+'%';
+    if(fill)fill.style.width=pct+'%';
     if(timeEl)timeEl.textContent=fmtTime(audio.currentTime)+' / '+fmtTime(audio.duration||0);
   }
 };
