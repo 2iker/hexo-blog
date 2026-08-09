@@ -30,7 +30,7 @@ module.exports = function (app, hexo) {
       return res.end(JSON.stringify({ code: 1, msg: 'keywords required' }));
     }
     try {
-      const data = await fetchJSON(API_BASE + '/search?keywords=' + encodeURIComponent(keywords) + '&limit=20');
+      const data = await fetchJSON(API_BASE + '/cloudsearch?keywords=' + encodeURIComponent(keywords) + '&limit=20&type=1&offset=0');
       const songs = (data.result && data.result.songs || []).map(s => ({
         id: s.id,
         name: s.name,
