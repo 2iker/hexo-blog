@@ -4,7 +4,7 @@
 
   var root = (window.CONFIG && CONFIG.root) || '/hexo-blog/'
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            var tracks = [
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            var tracks = [
     { name: '烟火里的尘埃', artist: '黄霄雲', url: root + 'music/bg-music.mp3', cover: root + 'music/covers/bg-music.jpg' }
   ]
 
@@ -215,6 +215,65 @@
   audio.addEventListener('ended', next)
 
   load(Math.floor(Math.random() * tracks.length))
+
+  /* ---------- 移动端底部播放栏 ---------- */
+  if (window.matchMedia && window.matchMedia('(max-width: 767px)').matches) {
+    var mCover = el('img', 'sm-m-cover')
+    mCover.alt = ''
+    var mName = el('span', 'sm-m-name')
+    var mArtist = el('span', 'sm-m-artist')
+    var mInfo = el('div', 'sm-m-info')
+    mInfo.appendChild(mName)
+    mInfo.appendChild(mArtist)
+    var mPrev = el('button', 'sm-m-btn', ICON_PREV)
+    mPrev.type = 'button'
+    mPrev.addEventListener('click', prev)
+    var mToggle = el('button', 'sm-m-btn sm-m-toggle', ICON_PLAY)
+    mToggle.type = 'button'
+    mToggle.addEventListener('click', togglePlay)
+    var mNext = el('button', 'sm-m-btn', ICON_NEXT)
+    mNext.type = 'button'
+    mNext.addEventListener('click', next)
+
+    var mBar = el('div', 'sm-m-progress')
+    var mPlayed = el('div', 'sm-m-played')
+    mBar.appendChild(mPlayed)
+
+    var mobileBar = el('div', 'sm-mobile-bar')
+    mobileBar.appendChild(mBar)
+    mobileBar.appendChild(mCover)
+    mobileBar.appendChild(mInfo)
+    mobileBar.appendChild(mPrev)
+    mobileBar.appendChild(mToggle)
+    mobileBar.appendChild(mNext)
+    document.body.appendChild(mobileBar)
+
+    function syncMobile() {
+      mCover.src = tracks[index].cover
+      mName.textContent = tracks[index].name
+      mArtist.textContent = tracks[index].artist
+    }
+    syncMobile()
+
+    audio.addEventListener('play', function () {
+      mToggle.innerHTML = ICON_PAUSE
+      mobileBar.classList.add('active')
+      syncMobile()
+    })
+    audio.addEventListener('pause', function () { mToggle.innerHTML = ICON_PLAY })
+    audio.addEventListener('timeupdate', function () {
+      if (dragging) return
+      var d = audio.duration
+      if (!d || !isFinite(d)) return
+      mPlayed.style.width = (audio.currentTime / d * 100) + '%'
+    })
+    audio.addEventListener('ended', function () { syncMobile() })
+    var origLoad = load
+    load = function (i, autoplay) {
+      origLoad(i, autoplay)
+      syncMobile()
+    }
+  }
 
   /* ---------- 融入侧边栏 ---------- */
   var sidebar = document.querySelector('.sidebar')
