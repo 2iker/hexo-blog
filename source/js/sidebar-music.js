@@ -217,10 +217,10 @@
   load(Math.floor(Math.random() * tracks.length))
 
   /* ---------- 融入侧边栏 ---------- */
-  var sidebarInner = document.querySelector('.sidebar-inner')
+  var sidebar = document.querySelector('.sidebar')
   var musicEl = container.closest('.sidebar-music')
-  if (sidebarInner && musicEl && musicEl.parentElement !== sidebarInner) {
-    sidebarInner.appendChild(musicEl)
+  if (sidebar && musicEl && musicEl.parentElement !== sidebar) {
+    sidebar.appendChild(musicEl)
   }
 
   var motionOk = window.NexT && NexT.motion && window.CONFIG && CONFIG.motion && CONFIG.motion.enable && typeof Element.prototype.animate === 'function'
