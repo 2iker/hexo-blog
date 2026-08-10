@@ -435,19 +435,19 @@
     align-items: center;
     gap: 10px;
     position: fixed;
-    bottom: 0;
+    top: 0;
     left: 0;
     right: 0;
     z-index: 999;
     background: var(--content-bg-color, #fff);
-    border-top: 1px solid var(--border-color, #e9e9e9);
+    border-bottom: 1px solid var(--border-color, #e9e9e9);
     padding: 8px 12px;
-    box-shadow: 0 -2px 8px rgba(0,0,0,.08);
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
   }
 
   .sm-mobile-bar .sm-m-progress {
     position: absolute;
-    top: 0;
+    bottom: 0;
     left: 0;
     right: 0;
     height: 3px;
@@ -527,13 +527,13 @@
     height: 20px;
   }
 
-  /* 移动端底部留出播放栏空间 */
+  /* 移动端顶部留出播放栏空间 */
   body {
-    padding-bottom: 64px;
+    padding-top: 64px;
   }
 
   /* 隐藏移动端快捷导航按钮（避免和播放栏冲突） */
   .quick-nav {
-    bottom: 72px;
+    bottom: 24px;
   }
 }
