@@ -217,14 +217,7 @@ const url = 'https://music.163.com/song/media/outer/url?id=' + id + '.mp3';
 
 ## 部署流程
 
-```mermaid
-graph LR
-    A[hexo-pro 编辑] --> B[自动保存]
-    B --> C[hexo generate]
-    C --> D[git push]
-    D --> E[GitHub Actions]
-    E --> F[GitHub Pages]
-```
+> hexo-pro 编辑 → 自动保存 → hexo generate → git push → GitHub Actions → GitHub Pages
 
 1. 在 hexo-pro 后台编辑文章
 2. 保存后自动触发 `hexo.generate()` 重新生成
