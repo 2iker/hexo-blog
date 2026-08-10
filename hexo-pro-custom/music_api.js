@@ -67,10 +67,9 @@ function scanExistingFiles(hexo, root) {
   for (const song of data.songs) {
     const meta = sidebarMeta[song.filename];
     if (meta) {
-      if (!song.title || song.title === path.basename(song.filename, path.extname(song.filename))) song.title = meta.name;
-      if (!song.artist && meta.artist) song.artist = meta.artist;
-      if (!song.cover && meta.cover) song.cover = meta.cover;
-      changed = true;
+      if (!song.title || song.title === path.basename(song.filename, path.extname(song.filename))) { song.title = meta.name; changed = true; }
+      if (!song.artist && meta.artist) { song.artist = meta.artist; changed = true; }
+      if (!song.cover && meta.cover) { song.cover = meta.cover; changed = true; }
     }
   }
   if (changed) { saveMusicData(hexo, data); syncToSidebarMusic(hexo, data, root); }

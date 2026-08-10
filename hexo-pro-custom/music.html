@@ -69,7 +69,6 @@ body{padding-bottom:60px}
 <body>
 <div class="header">
   <h1>🎵 音乐管理</h1>
-  <a onclick="goBack()">← 返回管理后台</a>
 </div>
 
 <div class="container">
@@ -143,7 +142,7 @@ body{padding-bottom:60px}
 <audio id="audio" style="display:none"></audio>
 
 <script>
-function goBack(){if(window.parent!==window){window.parent.postMessage('closeMusicPage','*');}else{window.history.back();}}
+
 const API_BASE = '/hexo-blog/hexopro/api/music';
 let songs = [];
 let audio = document.getElementById('audio');

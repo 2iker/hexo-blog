@@ -2,6 +2,10 @@
 var root=(window.__hexoProBase||'/pro').replace(/\/pro$/,'/');
 var musicUrl=root+'pro/music.html';
 var musicActive=false;
+var overlayPosHandler=null;
+var overlayInterval=null;
+var overlayObserver=null;
+var overlayLastRect='';
 
 function injectSidebarItem(){
   var menu=document.querySelector('ul.ant-menu.ant-menu-root');
@@ -27,14 +31,13 @@ function injectSidebarItem(){
   var lastItem=items[items.length-1];
   if(lastItem){menu.insertBefore(li,lastItem.nextSibling||null);}else{menu.appendChild(li);}
 
-  // Intercept clicks on ALL other sidebar items to close music page
+  // Capture-phase listener: when another item is clicked,
+  // close the music page first, then let React handle navigation.
   menu.addEventListener('click',function(e){
     if(!musicActive)return;
     var clickedItem=e.target.closest('.ant-menu-item');
     if(!clickedItem)return;
-    // If clicked music item, do nothing (already handled)
     if(clickedItem.getAttribute('data-menu-id')==='music-management')return;
-    // Close music page and let React handle navigation
     closeMusicPage();
   },true);
 
@@ -45,41 +48,59 @@ function showMusicPage(){
   if(musicActive)return;
   musicActive=true;
 
-  // Hide React content
+  // Remove any leftover container from a previous session
+  var old=document.getElementById('musicPageContainer');
+  if(old)old.remove();
+
   var content=document.querySelector('.ant-layout-content')||document.querySelector('[class*="content"]');
-  if(content){
-    content.dataset.musicHidden='true';
-    content.style.display='none';
+  if(!content){
+    musicActive=false;
+    return;
   }
 
-  // Create full-page container
   var container=document.createElement('div');
   container.id='musicPageContainer';
-  container.style.cssText='position:absolute;top:0;left:0;right:0;bottom:0;z-index:10;background:#fff;';
+  // Append to body (outside React's DOM) and cover only the content area,
+  // so the sidebar stays clickable and React re-renders never touch it.
+  container.style.cssText='position:fixed;z-index:10;background:#fff;overflow:auto;';
 
   var iframe=document.createElement('iframe');
   iframe.src=musicUrl;
   iframe.style.cssText='width:100%;height:100%;border:none;';
   container.appendChild(iframe);
 
-  // Insert into layout
-  var layout=document.querySelector('.ant-layout')||document.body;
-  layout.appendChild(container);
+  var positionOverlay=function(){
+    var c=document.querySelector('.ant-layout-content')||document.querySelector('[class*="content"]');
+    if(!c)return;
+    var r=c.getBoundingClientRect();
+    var key=Math.round(r.top)+','+Math.round(r.left)+','+Math.round(r.width)+','+Math.round(r.height);
+    if(key===overlayLastRect)return;
+    overlayLastRect=key;
+    container.style.top=Math.round(r.top)+'px';
+    container.style.left=Math.round(r.left)+'px';
+    container.style.width=Math.round(r.width)+'px';
+    container.style.height=Math.round(r.height)+'px';
+  };
+  overlayPosHandler=positionOverlay;
+  positionOverlay();
+  window.addEventListener('resize',positionOverlay);
+  window.addEventListener('scroll',positionOverlay,true);
+  window.addEventListener('transitionend',positionOverlay,true);
+  // Track sidebar collapse/expand and other layout shifts while the page is open
+  overlayInterval=setInterval(positionOverlay,400);
+  var sider=document.querySelector('.ant-layout-sider');
+  if(sider&&'MutationObserver'in window){
+    overlayObserver=new MutationObserver(positionOverlay);
+    overlayObserver.observe(sider,{attributes:true,attributeFilter:['class','style']});
+  }
 
-  // Highlight music menu item
+  document.body.appendChild(container);
+
   document.querySelectorAll('.ant-menu-item').forEach(function(item){
     item.classList.remove('ant-menu-item-selected');
   });
   var musicItem=document.querySelector('[data-menu-id="music-management"]');
   if(musicItem)musicItem.classList.add('ant-menu-item-selected');
-
-  // Listen for back from iframe
-  window._musicMessageHandler=function(e){
-    if(e.data==='closeMusicPage'){
-      closeMusicPage();
-    }
-  };
-  window.addEventListener('message',window._musicMessageHandler);
 }
 
 window.closeMusicPage=function(){
@@ -87,20 +108,19 @@ window.closeMusicPage=function(){
   musicActive=false;
   var container=document.getElementById('musicPageContainer');
   if(container)container.remove();
-  var content=document.querySelector('.ant-layout-content')||document.querySelector('[class*="content"]');
-  if(content&&content.dataset.musicHidden==='true'){
-    content.style.display='';
-    delete content.dataset.musicHidden;
+  if(overlayPosHandler){
+    window.removeEventListener('resize',overlayPosHandler);
+    window.removeEventListener('scroll',overlayPosHandler,true);
+    window.removeEventListener('transitionend',overlayPosHandler,true);
+    overlayPosHandler=null;
   }
+  if(overlayInterval){clearInterval(overlayInterval);overlayInterval=null;}
+  if(overlayObserver){overlayObserver.disconnect();overlayObserver=null;}
+  overlayLastRect='';
   var musicItem=document.querySelector('[data-menu-id="music-management"]');
   if(musicItem)musicItem.classList.remove('ant-menu-item-selected');
-  if(window._musicMessageHandler){
-    window.removeEventListener('message',window._musicMessageHandler);
-    window._musicMessageHandler=null;
-  }
 };
 
-// Injection loop
 var attempts=0;
 var timer=setInterval(function(){
   if(injectSidebarItem()){clearInterval(timer);}

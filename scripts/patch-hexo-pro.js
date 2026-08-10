@@ -172,4 +172,3 @@ if (fs.existsSync(updateFile)) {
     log('update.js: added hexo.generate() after save');
   }
 }
-}
