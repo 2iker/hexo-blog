@@ -8,6 +8,7 @@
   box-sizing: border-box;
   width: 100%;
   margin-top: 12px;
+  flex-shrink: 0;
   padding: 16px 12px 8px;
   background: var(--content-bg-color);
   border-radius: initial;
@@ -16,7 +17,7 @@
 }
 
 /* ???????????????????????? */
-.column:has(.sidebar-inner.sidebar-toc-active) > .sidebar-music {
+.sidebar-inner.sidebar-toc-active ~ .sidebar-music {
   display: none;
 }
 
@@ -437,7 +438,7 @@
 
 /* ??????991px?????? JS ????????????????????? */
 @media (max-width: 991px) {
-  .column > .sidebar-music {
+  .sidebar > .sidebar-music {
     display: none;
   }
 

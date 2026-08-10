@@ -228,9 +228,10 @@
         drawerInner.appendChild(musicEl)
       }
     } else {
-      var columnEl = sidebarEl.parentElement
-      if (columnEl && musicEl.parentElement !== columnEl) {
-        columnEl.insertBefore(musicEl, sidebarEl.nextSibling)
+      // Keep the player inside the sticky .sidebar so it stays visible while
+      // the page scrolls (the theme's .sidebar is position: sticky).
+      if (musicEl.parentElement !== sidebarEl) {
+        sidebarEl.appendChild(musicEl)
       }
     }
   }
