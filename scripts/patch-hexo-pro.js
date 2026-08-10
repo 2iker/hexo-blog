@@ -96,7 +96,7 @@ if (fs.existsSync(customHtml)) {
   }
 }
 
-// 4. Fix main.js bundle basename (hardcoded /pro -> dynamic)
+// 4. Fix main.js bundle basename (hardcoded /pro -> dynamic) + add /music route
 const mainJsDir = path.join(proDir, 'www', 'static', 'js');
 if (fs.existsSync(mainJsDir)) {
   const mainFiles = fs.readdirSync(mainJsDir).filter(f => f.startsWith('main') && f.endsWith('.js'));
@@ -108,8 +108,17 @@ if (fs.existsSync(mainJsDir)) {
     const replacement = 'basename:(window.__hexoProBase||"/pro")';
     if (m.includes(target)) {
       m = m.split(target).join(replacement);
-      fs.writeFileSync(mainPath, m, 'utf8');
       log('main.js: fixed basename');
+    }
+    // Add a real /music route (empty host that music-inject.js fills with the music iframe)
+    const routeTarget = 'o.createElement(s.qh,{path:"*",element:B((function(){return n(87389)("./".concat(m))})).render()}))';
+    const routeReplacement = 'o.createElement(s.qh,{path:"/music",element:o.createElement("div",{className:"music-route-host",style:{width:"100%",height:"100%"}})}),' + routeTarget;
+    if (!m.includes('music-route-host') && m.includes(routeTarget)) {
+      m = m.split(routeTarget).join(routeReplacement);
+      log('main.js: added /music route');
+    }
+    if (m !== mBefore) {
+      fs.writeFileSync(mainPath, m, 'utf8');
     }
   }
 }

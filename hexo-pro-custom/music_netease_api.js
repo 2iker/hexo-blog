@@ -1,50 +1,79 @@
 const https = require('https');
 const http = require('http');
 
-const API_BASE = 'https://api-enhanced-two-mu.vercel.app';
+const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
-function fetchJSON(url) {
+function fetchText(url, timeout) {
   return new Promise((resolve, reject) => {
     const client = url.startsWith('https') ? https : http;
-    client.get(url, { timeout: 10000 }, (res) => {
+    const req = client.get(url, { timeout: timeout || 10000, headers: { 'User-Agent': UA, Referer: 'https://music.163.com/' } }, (res) => {
       let data = '';
-      res.on('data', chunk => data += chunk);
+      res.on('data', (chunk) => (data += chunk));
       res.on('end', () => {
-        try { resolve(JSON.parse(data)); }
-        catch (e) { reject(new Error('JSON parse error')); }
+        if (res.statusCode !== 200) return reject(new Error('HTTP ' + res.statusCode));
+        resolve(data);
       });
-    }).on('error', reject).on('timeout', function() { this.destroy(); reject(new Error('timeout')); });
+    });
+    req.on('error', reject);
+    req.on('timeout', () => { req.destroy(); reject(new Error('timeout')); });
   });
+}
+
+async function fetchJSON(url, timeout) {
+  return JSON.parse(await fetchText(url, timeout));
 }
 
 module.exports = function (app, hexo) {
   const root = hexo.config.root || '/';
   const apiBase = root + 'hexopro/api/music';
 
-  // Search songs
+  // Search songs via the official NetEase API (works without cookies).
+  // Falls back to the old proxy if the official API is unreachable.
   app.use(apiBase + '/search', async function (req, res) {
     if (req.method !== 'GET') return;
-    const keywords = req.query.keywords || req.url.split('keywords=')[1];
+    const keywords = req.query.keywords || (req.url.split('keywords=')[1] || '').split('&')[0];
     if (!keywords) {
       res.setHeader('Content-Type', 'application/json; charset=utf-8');
       return res.end(JSON.stringify({ code: 1, msg: 'keywords required' }));
     }
+    const send = (obj) => {
+      res.setHeader('Content-Type', 'application/json; charset=utf-8');
+      res.end(JSON.stringify(obj));
+    };
     try {
-      const data = await fetchJSON(API_BASE + '/cloudsearch?keywords=' + encodeURIComponent(keywords) + '&limit=20&type=1&offset=0');
-      const songs = (data.result && data.result.songs || []).map(s => ({
+      let data;
+      try {
+        data = await fetchJSON('https://music.163.com/api/search/get/web?s=' + encodeURIComponent(keywords) + '&type=1&limit=20&offset=0', 10000);
+      } catch (e) {
+        // Official API blocked -> try the previous proxy as a fallback
+        const proxy = 'https://api-enhanced-two-mu.vercel.app/cloudsearch?keywords=' + encodeURIComponent(keywords) + '&limit=20&type=1&offset=0';
+        data = await fetchJSON(proxy, 10000);
+      }
+      const hits = (data && data.result && data.result.songs) || [];
+      const songs = hits.map((s) => ({
         id: s.id,
         name: s.name,
-        artist: (s.ar || s.artists || []).map(a => a.name).join(', '),
-        album: s.al && s.al.name || '',
-        cover: s.al && s.al.picUrl ? s.al.picUrl + '?param=200y200' : '',
-        duration: s.dt || s.duration || 0,
+        artist: (s.artists || s.ar || []).map((a) => a.name).join(', '),
+        album: (s.album && s.album.name) || (s.al && s.al.name) || '',
+        cover: '',
+        duration: s.duration || s.dt || 0,
         url: ''
       }));
-      res.setHeader('Content-Type', 'application/json; charset=utf-8');
-      res.end(JSON.stringify({ code: 0, data: songs }));
+      // Batch-fetch album covers (one extra request, maps back by id)
+      if (songs.length) {
+        try {
+          const ids = songs.map((x) => x.id);
+          const detail = await fetchJSON('https://music.163.com/api/song/detail/?id=' + ids[0] + '&ids=' + encodeURIComponent('[' + ids.join(',') + ']'), 10000);
+          const byId = {};
+          for (const d of (detail && detail.songs) || []) {
+            if (d && d.album && d.album.picUrl) byId[d.id] = d.album.picUrl;
+          }
+          for (const x of songs) if (byId[x.id]) x.cover = byId[x.id] + '?param=200y200';
+        } catch (e) { /* cover is optional */ }
+      }
+      send({ code: 0, data: songs });
     } catch (e) {
-      res.setHeader('Content-Type', 'application/json; charset=utf-8');
-      res.end(JSON.stringify({ code: 1, msg: e.message }));
+      send({ code: 1, msg: e.message });
     }
   });
 

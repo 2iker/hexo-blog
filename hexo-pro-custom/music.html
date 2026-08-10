@@ -5,66 +5,141 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>音乐管理 - Hexo Pro</title>
 <style>
+:root{
+  --bg:#f5f5f5;
+  --bg-container:#ffffff;
+  --bg-card:#ffffff;
+  --bg-item:#fafafa;
+  --bg-hover:#f0f5ff;
+  --bg-input:#ffffff;
+  --bg-primary-soft:#e6f7ff;
+  --bg-success-soft:#f6ffed;
+  --text:#333333;
+  --text-secondary:#666666;
+  --text-tertiary:var(--text-tertiary)999;
+  --text-faint:#bbbbbb;
+  --border:#e8e8e8;
+  --border-strong:#d9d9d9;
+  --border-soft:#f0f0f0;
+  --divider:#f0f0f0;
+  --track:#e8e8e8;
+  --primary:#1890ff;
+  --primary-hover:#40a9ff;
+  --danger:#ff4d4f;
+  --success:#52c41a;
+  --shadow-card:0 1px 2px rgba(0,0,0,.06);
+  --shadow-drop:0 4px 12px rgba(0,0,0,.15);
+  --shadow-modal:0 8px 32px rgba(0,0,0,.2);
+}
+html[data-theme="dark"]{
+  --bg:#141414;
+  --bg-container:#1f1f1f;
+  --bg-card:#1f1f1f;
+  --bg-item:#1a1a1a;
+  --bg-hover:#262626;
+  --bg-input:#141414;
+  --bg-primary-soft:rgba(24,144,255,.15);
+  --bg-success-soft:rgba(82,196,26,.15);
+  --text:rgba(255,255,255,.88);
+  --text-secondary:rgba(255,255,255,.65);
+  --text-tertiary:rgba(255,255,255,.45);
+  --text-faint:#555555;
+  --border:#2a2a2a;
+  --border-strong:#3a3a3a;
+  --border-soft:#262626;
+  --divider:#262626;
+  --track:#2a2a2a;
+  --primary:#1890ff;
+  --primary-hover:#40a9ff;
+  --danger:#ff4d4f;
+  --success:#52c41a;
+  --shadow-card:0 1px 2px rgba(0,0,0,.4);
+  --shadow-drop:0 4px 12px rgba(0,0,0,.5);
+  --shadow-modal:0 8px 32px rgba(0,0,0,.6);
+}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f5f5f5;color:#333}
-.header{background:#fff;padding:0 24px;height:56px;border-bottom:1px solid #e8e8e8;display:flex;align-items:center;justify-content:space-between}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);transition:background .2s,color .2s}
+.header{background:var(--bg-container);padding:0 24px;height:56px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .header h1{font-size:17px;font-weight:600}
-.header a{color:#1890ff;text-decoration:none;font-size:14px;cursor:pointer}
-.header a:hover{color:#40a9ff}
+.header a{color:var(--primary);text-decoration:none;font-size:14px;cursor:pointer}
+.header a:hover{color:var(--primary-hover)}
 .container{max-width:960px;margin:24px auto;padding:0 24px}
-.card{background:#fff;border-radius:8px;padding:20px;margin-bottom:16px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.card{background:var(--bg-card);border-radius:8px;padding:20px;margin-bottom:16px;box-shadow:var(--shadow-card)}
 .card-title{font-size:15px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
 .btn{padding:7px 16px;border:none;border-radius:6px;cursor:pointer;font-size:13px;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
-.btn-primary{background:#1890ff;color:#fff}.btn-primary:hover{background:#40a9ff}
-.btn-danger{background:#fff;color:#ff4d4f;border:1px solid #ff4d4f}.btn-danger:hover{background:#ff4d4f;color:#fff}
-.btn-default{background:#fff;color:#666;border:1px solid #d9d9d9}.btn-default:hover{border-color:#1890ff;color:#1890ff}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-hover)}
+.btn-danger{background:transparent;color:var(--danger);border:1px solid var(--danger)}.btn-danger:hover{background:var(--danger);color:#fff}
+.btn-default{background:var(--bg-container);color:var(--text-secondary);border:1px solid var(--border-strong)}.btn-default:hover{border-color:var(--primary);color:var(--primary)}
 .btn-sm{padding:4px 10px;font-size:12px}
 .song-list{display:flex;flex-direction:column;gap:8px}
-.song-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:#fafafa;border-radius:8px;transition:all .15s;border:1px solid transparent}
-.song-item:hover{background:#f0f5ff;border-color:#d6e4ff}
+.song-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--bg-item);border-radius:8px;transition:all .15s;border:1px solid transparent}
+.song-item:hover{background:var(--bg-hover);border-color:var(--border)}
 .song-cover{width:52px;height:52px;border-radius:8px;object-fit:cover;background:linear-gradient(135deg,#667eea,#764ba2);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;overflow:hidden}
 .song-cover img{width:100%;height:100%;object-fit:cover}
 .song-info{flex:1;min-width:0}
 .song-title{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.song-meta{font-size:12px;color:#999;margin-top:3px;display:flex;gap:12px}
+.song-meta{font-size:12px;color:var(--text-tertiary);margin-top:3px;display:flex;gap:12px}
 .song-actions{display:flex;gap:6px;flex-shrink:0;align-items:center}
-.song-progress{flex:1;min-width:100px;height:10px;background:#e8e8e8;border-radius:5px;cursor:pointer;position:relative}
-.song-progress-fill{height:100%;background:linear-gradient(90deg,#1890ff,#40a9ff);border-radius:5px;width:0%;position:absolute;left:0;top:0;pointer-events:none}
+.song-progress{flex:1;min-width:100px;height:10px;background:var(--track);border-radius:5px;cursor:pointer;position:relative}
+.song-progress-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--primary-hover));border-radius:5px;width:0%;position:absolute;left:0;top:0;pointer-events:none}
 .song-progress:hover{height:12px;margin-top:-1px}
-.song-time{font-size:11px;color:#999;min-width:70px;text-align:right;white-space:nowrap}
-.empty{text-align:center;padding:48px 20px;color:#bbb}
+.song-time{font-size:11px;color:var(--text-tertiary);min-width:70px;text-align:right;white-space:nowrap}
+.empty{text-align:center;padding:48px 20px;color:var(--text-faint)}
 .empty-icon{font-size:48px;margin-bottom:12px}
 .empty-text{font-size:14px}
 .form-group{margin-bottom:14px}
-.form-label{display:block;font-size:13px;color:#666;margin-bottom:5px;font-weight:500}
-.form-input{width:100%;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;box-sizing:border-box}
-.form-input:focus{outline:none;border-color:#1890ff;box-shadow:0 0 0 2px rgba(24,144,255,.15)}
-.upload-file-area{border:2px dashed #d9d9d9;border-radius:8px;padding:16px;text-align:center;cursor:pointer;transition:all .2s}
-.upload-file-area:hover{border-color:#1890ff;background:#e6f7ff}
-.upload-file-area.has-file{border-color:#52c41a;background:#f6ffed}
-#uploadFileInfo{font-size:13px;color:#999}
-.search-item{padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:10px;border-bottom:1px solid #f0f0f0;transition:background .15s}
-.search-item:hover{background:#f0f5ff}
+.form-label{display:block;font-size:13px;color:var(--text-secondary);margin-bottom:5px;font-weight:500}
+.form-input{width:100%;padding:8px 12px;border:1px solid var(--border-strong);border-radius:6px;font-size:14px;box-sizing:border-box;background:var(--bg-input);color:var(--text)}
+.form-input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 2px rgba(24,144,255,.15)}
+.form-input::placeholder{color:var(--text-tertiary)}
+.upload-file-area{border:2px dashed var(--border-strong);border-radius:8px;padding:16px;text-align:center;cursor:pointer;transition:all .2s}
+.upload-file-area:hover{border-color:var(--primary);background:var(--bg-primary-soft)}
+.upload-file-area.has-file{border-color:var(--success);background:var(--bg-success-soft)}
+#uploadFileInfo{font-size:13px;color:var(--text-tertiary)}
+.search-item{padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--divider);transition:background .15s}
+.search-item:hover{background:var(--bg-hover)}
 .search-item:last-child{border-bottom:none}
-.search-item-cover{width:36px;height:36px;border-radius:4px;background:#eee;object-fit:cover;flex-shrink:0}
+.search-item-cover{width:36px;height:36px;border-radius:4px;background:var(--track);object-fit:cover;flex-shrink:0}
 .search-item-info{flex:1;min-width:0}
 .search-item-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.search-item-artist{font-size:11px;color:#999}
-.player-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e8e8e8;padding:10px 24px;display:none;align-items:center;gap:14px;z-index:2147483647}
+.search-item-artist{font-size:11px;color:var(--text-tertiary)}
+.player-bar{position:fixed;bottom:0;left:0;right:0;background:var(--bg-container);border-top:1px solid var(--border);padding:10px 24px;display:none;align-items:center;gap:14px;z-index:2147483647}
 body{padding-bottom:60px}
 .player-bar.active{display:flex}
 .progress-wrap{flex:1;display:flex;align-items:center;gap:10px}
-.progress-bar{flex:1;height:4px;background:#e8e8e8;border-radius:2px;cursor:pointer}
-.progress-fill{height:100%;background:#1890ff;border-radius:2px;transition:width .1s}
-.time-text{font-size:11px;color:#999;min-width:70px;text-align:right}
+.progress-bar{flex:1;height:4px;background:var(--track);border-radius:2px;cursor:pointer}
+.progress-fill{height:100%;background:var(--primary);border-radius:2px;transition:width .1s}
+.time-text{font-size:11px;color:var(--text-tertiary);min-width:70px;text-align:right}
 .toast{position:fixed;top:24px;right:24px;padding:10px 20px;border-radius:6px;color:#fff;font-size:13px;z-index:2000;animation:slideIn .3s}
-.toast-success{background:#52c41a}.toast-error{background:#ff4d4f}
+.toast-success{background:var(--success)}.toast-error{background:var(--danger)}
 @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
 .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center}
 .modal-overlay.active{display:flex}
-.modal{background:#fff;border-radius:12px;padding:24px;width:500px;max-width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.2)}
-.modal h3{margin:0 0 16px;font-size:16px}
+.modal{background:var(--bg-card);border-radius:12px;padding:24px;width:500px;max-width:90vw;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow-modal)}
+
+.confirm-modal{width:380px;max-width:90vw;text-align:center;padding:28px 24px 22px}
+.confirm-modal h3{margin:0 0 10px}
+.confirm-icon{font-size:42px;line-height:1;margin-bottom:12px}
+.confirm-text{color:var(--text-secondary);font-size:14px;line-height:1.6;margin:0 0 22px;word-break:break-all}
+.confirm-actions{display:flex;gap:12px;justify-content:center}
+.confirm-actions .btn{min-width:88px;justify-content:center;padding:8px 18px;font-size:14px;border-radius:8px}
+.btn-danger-solid{background:var(--danger);color:#fff;border:1px solid var(--danger)}
+.btn-danger-solid:hover{background:#ff7875;border-color:#ff7875}
 </style>
+<script>
+(function(){
+  function applyTheme(){
+    var v=null;
+    try{v=(window.parent&&window.parent.localStorage)?window.parent.localStorage.getItem('hexo-pro-theme'):null;}catch(e){}
+    if(v===null){try{v=localStorage.getItem('hexo-pro-theme');}catch(e){}}
+    document.documentElement.setAttribute('data-theme',(v||'light')==='dark'?'dark':'light');
+  }
+  applyTheme();
+  window.addEventListener('storage',function(e){
+    if(e.key==='hexo-pro-theme')applyTheme();
+  });
+})();
+</script>
 </head>
 <body>
 <div class="header">
@@ -92,17 +167,17 @@ body{padding-bottom:60px}
     <input type="hidden" id="formId">
     <div class="form-group"><label class="form-label">歌曲标题 <span style="color:#ff4d4f">*</span></label>
       <input type="text" id="formSongTitle" class="form-input" placeholder="输入歌曲标题，自动搜索" oninput="debounceSearch()">
-      <div id="searchDropdown" style="display:none;position:absolute;z-index:10;background:#fff;border:1px solid #d9d9d9;border-radius:6px;width:calc(100% - 40px);max-height:200px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,.15);margin-top:4px"></div>
+      <div id="searchDropdown" style="display:none;position:absolute;z-index:10;background:var(--bg-container);border:1px solid var(--border-strong);border-radius:6px;width:calc(100% - 40px);max-height:200px;overflow-y:auto;box-shadow:var(--shadow-drop);margin-top:4px"></div>
     </div>
     <div id="searchListWrap" style="display:none;margin-bottom:14px">
       <label class="form-label">搜索结果（滚动加载更多）</label>
-      <div id="searchedList" style="max-height:240px;overflow-y:auto;border:1px solid #e8e8e8;border-radius:6px"></div>
+      <div id="searchedList" style="max-height:240px;overflow-y:auto;border:1px solid var(--border);border-radius:6px"></div>
     </div>
     <div class="form-group"><label class="form-label">歌手</label><input type="text" id="formArtist" class="form-input" placeholder="输入歌手名称"></div>
     <div class="form-group"><label class="form-label">封面图片</label>
       <div style="display:flex;gap:8px;align-items:center">
         <input type="text" id="formCover" class="form-input" placeholder="输入图片 URL" style="flex:1">
-        <span style="color:#999;font-size:12px">或</span>
+        <span style="color:var(--text-tertiary);font-size:12px">或</span>
         <label class="btn btn-default btn-sm" style="cursor:pointer;margin:0">
           📁 本地上传
           <input type="file" id="formCoverFile" accept="image/*" style="display:none">
@@ -124,10 +199,22 @@ body{padding-bottom:60px}
   </div>
 </div>
 
+<div class="modal-overlay" id="confirmOverlay" onclick="if(event.target===this)hideConfirm()">
+  <div class="modal confirm-modal">
+    <div class="confirm-icon">🗑️</div>
+    <h3>删除歌曲</h3>
+    <p class="confirm-text" id="confirmText">确定要删除这首歌吗？</p>
+    <div class="confirm-actions">
+      <button class="btn btn-default" id="confirmCancelBtn" onclick="hideConfirm()">取消</button>
+      <button class="btn btn-danger-solid" onclick="doDelete()">删除</button>
+    </div>
+  </div>
+</div>
+
 <div class="player-bar" id="playerBar">
   <div style="flex:1;min-width:0">
     <div id="playerTitle" style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">-</div>
-    <div id="playerArtist" style="font-size:11px;color:#999">-</div>
+    <div id="playerArtist" style="font-size:11px;color:var(--text-tertiary)">-</div>
   </div>
   <div class="progress-wrap">
     <button class="btn btn-default btn-sm" onclick="playerSeek(-10)">⏪</button>
@@ -403,7 +490,7 @@ function renderSearchList(){
     (s.cover?'<img class="search-item-cover" src="'+esc(s.cover)+'" onerror="this.style.display=\'none\'">':'<div class="search-item-cover" style="display:flex;align-items:center;justify-content:center;font-size:16px">♪</div>')+
     '<div class="search-item-info"><div class="search-item-name">'+esc(s.name)+'</div>'+
     '<div class="search-item-artist">'+esc(s.artist)+(s.album?' · '+esc(s.album):'')+'</div></div></div>').join('')+
-    (searchHasMore?'<div id="scrollSentinel" style="text-align:center;padding:8px;color:#999;font-size:12px">加载中...</div>':'<div style="text-align:center;padding:8px;color:#999;font-size:12px">没有更多了</div>');
+    (searchHasMore?'<div id="scrollSentinel" style="text-align:center;padding:8px;color:var(--text-tertiary);font-size:12px">加载中...</div>':'<div style="text-align:center;padding:8px;color:var(--text-tertiary);font-size:12px">没有更多了</div>');
   // Setup infinite scroll
   dd.onscroll=function(){
     if(!searchHasMore||searchLoading)return;
@@ -436,15 +523,35 @@ document.addEventListener('click',function(e){
   }
 });
 
-async function deleteSong(id){
-  if(!confirm('确定删除这首歌？'))return;
+let pendingDeleteId=null;
+function deleteSong(id){
+  const s=songs.find(x=>String(x.id)===String(id));
+  document.getElementById('confirmText').textContent='确定要删除「'+(s?s.title:'这首歌')+'」吗？删除后无法恢复。';
+  pendingDeleteId=id;
+  document.getElementById('confirmOverlay').classList.add('active');
+  document.getElementById('confirmCancelBtn').focus();
+}
+function hideConfirm(){
+  pendingDeleteId=null;
+  document.getElementById('confirmOverlay').classList.remove('active');
+}
+async function doDelete(){
+  const id=pendingDeleteId;
+  if(id==null)return;
+  hideConfirm();
   try{
     const res=await fetch(API_BASE+'/delete',{method:'POST',headers:{'Authorization':'Bearer '+getToken(),'Content-Type':'application/json'},body:JSON.stringify({id})});
     const json=await res.json();
-    if(json.code===0){toast('已删除','success');songs=songs.filter(s=>s.id!==id);renderSongs();}
+    if(json.code===0){toast('已删除','success');songs=songs.filter(s=>String(s.id)!==String(id));renderSongs();}
     else toast('删除失败','error');
   }catch(e){toast('删除出错','error');}
 }
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if(document.getElementById('confirmOverlay').classList.contains('active'))hideConfirm();
+    else if(document.getElementById('formOverlay').classList.contains('active'))hideForm();
+  }
+});
 loadSongs();
 </script>
 </body>

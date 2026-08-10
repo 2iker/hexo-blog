@@ -4,10 +4,8 @@
 
   var root = (window.CONFIG && CONFIG.root) || '/hexo-blog/'
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                var tracks = [
-    { name: '烟火里的尘埃', artist: '黄霄雲', url: root + 'music/bg-music.mp3', cover: root + 'music/covers/bg-music.jpg' },
-    { name: '海屿你', artist: '马也_Crabbit', url: 'http://music.163.com/song/media/outer/url?id=1973665667.mp3', cover: 'http://p1.music.126.net/RfguLkQJ8aMVkiIaxdy70Q==/109951170483263672.jpg' },
-    { name: '坐上火车去拉萨', artist: '徐千雅', url: 'https://music.163.com/song/media/outer/url?id=308895.mp3', cover: 'http://p4.music.126.net/GEGMrRHzsXdHjreVjKE-CQ==/109951163028209067.jpg?param=200y200' }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                            var tracks = [
+    { name: '烟火里的尘埃', artist: '黄霄雲', url: root + 'music/bg-music.mp3', cover: root + 'music/covers/bg-music.jpg' }
   ]
 
   var ICON_PLAY = '<svg viewBox="0 0 24 24"><path d="M8 5.14v13.72c0 .6.66.97 1.17.65l11.17-6.86a.77.77 0 0 0 0-1.3L9.17 4.49A.77.77 0 0 0 8 5.14z"/></svg>'

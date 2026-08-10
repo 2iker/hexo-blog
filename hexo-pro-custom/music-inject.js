@@ -1,11 +1,65 @@
 (function(){
-var root=(window.__hexoProBase||'/pro').replace(/\/pro$/,'/');
-var musicUrl=root+'pro/music.html';
+var proBase=window.__hexoProBase||'/pro';
+var musicUrl=proBase+'/music.html';
+var musicRoute=proBase+'/music';
 var musicActive=false;
-var overlayPosHandler=null;
-var overlayInterval=null;
-var overlayObserver=null;
-var overlayLastRect='';
+var pollTimer=null;
+var musicItem=null;
+
+function isMusicRoute(){
+  return location.pathname===musicRoute||location.pathname===musicRoute+'/';
+}
+
+function setMusicSelected(on){
+  if(!musicItem)return;
+  if(on)musicItem.classList.add('ant-menu-item-selected');
+  else musicItem.classList.remove('ant-menu-item-selected');
+}
+
+function ensureMusicFrame(){
+  var host=document.querySelector('.music-route-host');
+  if(!host)return;
+  if(host.querySelector('iframe.music-frame'))return;
+  var iframe=document.createElement('iframe');
+  iframe.className='music-frame';
+  iframe.src=musicUrl;
+  iframe.style.cssText='width:100%;height:100%;border:none;display:block;';
+  host.appendChild(iframe);
+  setMusicSelected(true);
+}
+
+function closeMusicPage(){
+  musicActive=false;
+  var host=document.querySelector('.music-route-host');
+  if(host){
+    var f=host.querySelector('iframe.music-frame');
+    if(f)f.remove();
+  }
+  if(pollTimer){clearInterval(pollTimer);pollTimer=null;}
+  setMusicSelected(false);
+}
+
+function startTracking(){
+  if(pollTimer)clearInterval(pollTimer);
+  pollTimer=setInterval(function(){
+    if(!musicActive)return;
+    if(isMusicRoute()){
+      ensureMusicFrame();
+    }else{
+      closeMusicPage();
+    }
+  },250);
+}
+
+function openMusicPage(){
+  if(musicActive&&isMusicRoute())return;
+  musicActive=true;
+  if(!isMusicRoute()){
+    history.pushState({},'',musicRoute);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  }
+  startTracking();
+}
 
 function injectSidebarItem(){
   var menu=document.querySelector('ul.ant-menu.ant-menu-root');
@@ -23,107 +77,51 @@ function injectSidebarItem(){
   li.onclick=function(e){
     e.preventDefault();
     e.stopPropagation();
-    if(musicActive)return;
-    showMusicPage();
+    openMusicPage();
   };
 
   var items=menu.querySelectorAll('.ant-menu-item, .ant-menu-submenu');
   var lastItem=items[items.length-1];
   if(lastItem){menu.insertBefore(li,lastItem.nextSibling||null);}else{menu.appendChild(li);}
 
-  // Capture-phase listener: when another item is clicked,
-  // close the music page first, then let React handle navigation.
+  // When another menu item is clicked, React navigates and removes the music
+  // route host; clear our selection style immediately for a snappy response.
   menu.addEventListener('click',function(e){
-    if(!musicActive)return;
     var clickedItem=e.target.closest('.ant-menu-item');
     if(!clickedItem)return;
     if(clickedItem.getAttribute('data-menu-id')==='music-management')return;
-    closeMusicPage();
+    if(musicActive)setMusicSelected(false);
   },true);
 
   return true;
 }
 
-function showMusicPage(){
-  if(musicActive)return;
-  musicActive=true;
-
-  // Remove any leftover container from a previous session
-  var old=document.getElementById('musicPageContainer');
-  if(old)old.remove();
-
-  var content=document.querySelector('.ant-layout-content')||document.querySelector('[class*="content"]');
-  if(!content){
-    musicActive=false;
-    return;
+window.addEventListener('popstate',function(){
+  if(isMusicRoute()){
+    openMusicPage();
+  }else{
+    closeMusicPage();
   }
-
-  var container=document.createElement('div');
-  container.id='musicPageContainer';
-  // Append to body (outside React's DOM) and cover only the content area,
-  // so the sidebar stays clickable and React re-renders never touch it.
-  container.style.cssText='position:fixed;z-index:10;background:#fff;overflow:auto;';
-
-  var iframe=document.createElement('iframe');
-  iframe.src=musicUrl;
-  iframe.style.cssText='width:100%;height:100%;border:none;';
-  container.appendChild(iframe);
-
-  var positionOverlay=function(){
-    var c=document.querySelector('.ant-layout-content')||document.querySelector('[class*="content"]');
-    if(!c)return;
-    var r=c.getBoundingClientRect();
-    var key=Math.round(r.top)+','+Math.round(r.left)+','+Math.round(r.width)+','+Math.round(r.height);
-    if(key===overlayLastRect)return;
-    overlayLastRect=key;
-    container.style.top=Math.round(r.top)+'px';
-    container.style.left=Math.round(r.left)+'px';
-    container.style.width=Math.round(r.width)+'px';
-    container.style.height=Math.round(r.height)+'px';
-  };
-  overlayPosHandler=positionOverlay;
-  positionOverlay();
-  window.addEventListener('resize',positionOverlay);
-  window.addEventListener('scroll',positionOverlay,true);
-  window.addEventListener('transitionend',positionOverlay,true);
-  // Track sidebar collapse/expand and other layout shifts while the page is open
-  overlayInterval=setInterval(positionOverlay,400);
-  var sider=document.querySelector('.ant-layout-sider');
-  if(sider&&'MutationObserver'in window){
-    overlayObserver=new MutationObserver(positionOverlay);
-    overlayObserver.observe(sider,{attributes:true,attributeFilter:['class','style']});
-  }
-
-  document.body.appendChild(container);
-
-  document.querySelectorAll('.ant-menu-item').forEach(function(item){
-    item.classList.remove('ant-menu-item-selected');
-  });
-  var musicItem=document.querySelector('[data-menu-id="music-management"]');
-  if(musicItem)musicItem.classList.add('ant-menu-item-selected');
-}
+});
 
 window.closeMusicPage=function(){
-  if(!musicActive)return;
-  musicActive=false;
-  var container=document.getElementById('musicPageContainer');
-  if(container)container.remove();
-  if(overlayPosHandler){
-    window.removeEventListener('resize',overlayPosHandler);
-    window.removeEventListener('scroll',overlayPosHandler,true);
-    window.removeEventListener('transitionend',overlayPosHandler,true);
-    overlayPosHandler=null;
+  closeMusicPage();
+  if(isMusicRoute()){
+    history.pushState({},'',proBase+'/');
+    window.dispatchEvent(new PopStateEvent('popstate'));
   }
-  if(overlayInterval){clearInterval(overlayInterval);overlayInterval=null;}
-  if(overlayObserver){overlayObserver.disconnect();overlayObserver=null;}
-  overlayLastRect='';
-  var musicItem=document.querySelector('[data-menu-id="music-management"]');
-  if(musicItem)musicItem.classList.remove('ant-menu-item-selected');
 };
 
 var attempts=0;
 var timer=setInterval(function(){
-  if(injectSidebarItem()){clearInterval(timer);}
+  if(injectSidebarItem()){
+    clearInterval(timer);
+    musicItem=document.querySelector('[data-menu-id="music-management"]');
+    if(isMusicRoute()){
+      musicActive=true;
+      startTracking();
+    }
+  }
   attempts++;
   if(attempts>100){clearInterval(timer);}
 },300);

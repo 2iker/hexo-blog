@@ -89,6 +89,7 @@ local_search:
 
 # Vendors (katex CSS matches the version used by markdown-it-katex)
 vendors:
+  plugins: jsdelivr
   katex: https://cdn.jsdelivr.net/npm/katex@0.18.1/dist/katex.min.css
 
 # Footer
