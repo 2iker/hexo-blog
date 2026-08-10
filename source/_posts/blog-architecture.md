@@ -21,19 +21,21 @@ published: true
 | 部署 | GitHub Actions → GitHub Pages |
 | 音乐播放器 | 自写无依赖 |
 | 音乐源 | 本地文件 + 网易云音乐 API |
+| CDN | jsdelivr（国内可访问） |
 
 ## 项目结构
 
 ```
 blog-hexo/
 ├── _config.yml              # Hexo 站点配置
-├── _config.next.yml         # NexT 主题配置
+├── _config.next.yml         # NexT 主题配置（含 CDN 切换）
 ├── source/
 │   ├── _posts/              # 文章 Markdown
 │   ├── _discarded/          # 已删除文章归档
 │   ├── music/               # 音乐文件（MP3）
 │   ├── css/sidebar-music.css # 播放器样式
 │   ├── js/sidebar-music.js  # 播放器逻辑
+│   ├── _data/styles.styl    # 自定义样式（侧边栏布局等）
 │   └── images/              # 图片资源
 ├── scripts/
 │   ├── sidebar-music.js     # 侧边栏注入 + Range 中间件
@@ -105,6 +107,30 @@ u = u.replace(
 );
 ```
 
+## 侧边栏布局
+
+### flex 兄弟布局
+
+`.sidebar` 使用 flex 列布局，`.sidebar-inner` 和 `.sidebar-music` 作为兄弟元素并列显示：
+
+```css
+/* source/_data/styles.styl */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-inner {
+  flex: 1;
+  min-height: 0;
+}
+```
+
+### 播放器显示逻辑
+
+- **站点概览模式**：显示播放器（`.sidebar-overview-active`）
+- **文章目录模式**：隐藏播放器（`.sidebar-toc-active .sidebar-music { display: none }`）
+
 ## 自写音乐播放器
 
 本站最大的自定义功能是**从零手写的侧边音乐播放器**，无任何外部依赖。
@@ -117,6 +143,7 @@ u = u.replace(
 - **封面动画**：播放时圆形旋转（12s 一圈），切歌时淡入淡出
 - **进度条**：支持点击跳转和拖拽快进
 - **歌曲列表**：点击直接播放，当前播放高亮
+- **移动端适配**：播放器在侧边栏内，通过汉堡菜单访问
 
 ### 实现原理
 
@@ -143,6 +170,8 @@ hexo.extend.filter.register('server_middleware', (app) => {
   });
 });
 ```
+
+播放器注入后，JS 会自动将 `.sidebar-music` 移入 `.sidebar-inner` 内部，确保在 Pisces 主题的 flex 布局中正确显示。
 
 ## 音乐管理（hexo-pro 集成）
 
@@ -191,6 +220,17 @@ const url = 'https://music.163.com/song/media/outer/url?id=' + id + '.mp3';
 
 ## 主题定制
 
+### CDN 切换
+
+默认 CDN（cdnjs.cloudflare.com）在国内访问不稳定，切换为 jsdelivr：
+
+```yaml
+# _config.next.yml
+vendors:
+  plugins: jsdelivr
+  mermaid: https://cdn.jsdelivr.net/npm/mermaid@11.10.1/dist/mermaid.min.js
+```
+
 ### 封面旋转动画
 
 播放时封面变圆形并旋转，切歌时淡入淡出过渡：
@@ -217,14 +257,7 @@ const url = 'https://music.163.com/song/media/outer/url?id=' + id + '.mp3';
 
 ## 部署流程
 
-```mermaid
-graph LR
-    A[hexo-pro 编辑] --> B[自动保存]
-    B --> C[hexo generate]
-    C --> D[git push]
-    D --> E[GitHub Actions]
-    E --> F[GitHub Pages]
-```
+> hexo-pro 编辑 → 自动保存 → hexo generate → git push → GitHub Actions → GitHub Pages
 
 1. 在 hexo-pro 后台编辑文章
 2. 保存后自动触发 `hexo.generate()` 重新生成
