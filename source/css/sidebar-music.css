@@ -1,21 +1,35 @@
+/* ---------- ?????????.sidebar ???????? ---------- */
 .sidebar-music {
-  --sm-accent: #222;
+  --sm-accent: var(--text-color, #555);
+  --sm-accent-contrast: var(--content-bg-color, #fff);
   --sm-text: var(--text-color, #555);
   --sm-muted: var(--blockquote-color, #666);
-  --sm-border: var(--border-color, #e9e9e9);
-  margin-top: 16px;
-  padding: 14px 12px;
-  border-top: 1px solid var(--sm-border);
+  --sm-border: var(--menu-item-bg-color, #e9e9e9);
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 12px;
+  padding: 16px 12px 8px;
   background: var(--content-bg-color);
+  border-radius: initial;
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, .12), 0 3px 1px -2px rgba(0, 0, 0, .06), 0 1px 5px 0 rgba(0, 0, 0, .12), 0 -1px .5px 0 rgba(0, 0, 0, .09);
   font-family: Lato, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  flex-shrink: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  .sidebar-music {
-    --sm-accent: #ccc;
-  }
+/* ???????????????????????? */
+.column:has(.sidebar-inner.sidebar-toc-active) > .sidebar-music {
+  display: none;
 }
+
+/* ????????????????????? */
+.use-motion .sidebar-music {
+  visibility: hidden;
+}
+
+.use-motion .sidebar-music.animated {
+  visibility: visible;
+  animation-fill-mode: both;
+}
+
 
 .sidebar-music-title {
   font-size: 1em;
@@ -184,7 +198,7 @@
 }
 
 .sm-btn:hover {
-  color: var(--sm-accent);
+  color: var(--link-hover-color, #222);
 }
 
 .sm-btn:active {
@@ -210,11 +224,11 @@
   height: 34px;
   border-radius: 50%;
   background: var(--sm-accent);
-  color: var(--content-bg-color);
+  color: var(--sm-accent-contrast);
 }
 
 .sm-toggle:hover {
-  color: var(--content-bg-color);
+  color: var(--sm-accent-contrast);
   opacity: 0.85;
   transform: scale(1.08);
 }
@@ -230,11 +244,7 @@
 
 .sm-mode.on,
 .sm-list-toggle.on {
-  color: var(--sm-accent);
-}
-
-.sm-mode.on {
-  color: var(--sm-accent);
+  color: var(--link-hover-color, #222);
 }
 
 .sm-mode {
@@ -423,4 +433,46 @@
   font-size: 20px;
   line-height: 1;
   color: var(--text-color);
+}
+
+/* ??????991px?????? JS ????????????????????? */
+@media (max-width: 991px) {
+  .column > .sidebar-music {
+    display: none;
+  }
+
+  /* ???????????????????????? */
+  .sidebar-inner .sidebar-music {
+    --sm-accent: #ccc;
+    --sm-accent-contrast: #222;
+    --sm-text: #ccc;
+    --sm-muted: #999;
+    --sm-border: rgba(255, 255, 255, .12);
+    margin-top: 14px;
+    padding: 14px 10px 6px;
+    background: transparent;
+    box-shadow: none;
+    border-top: 1px solid rgba(255, 255, 255, .12);
+  }
+
+  .sidebar-inner .sm-btn:hover,
+  .sidebar-inner .sm-mode.on,
+  .sidebar-inner .sm-list-toggle.on {
+    color: #fff;
+  }
+
+  .sidebar-inner .sm-toggle:hover {
+    color: #222;
+  }
+
+  .sidebar-inner .sm-list-item:hover,
+  .sidebar-inner .sm-list-item.current {
+    background: rgba(255, 255, 255, .08);
+    color: #fff;
+  }
+}
+
+/* ?????????????????????? */
+.sidebar-inner.sidebar-toc-active .sidebar-music {
+  display: none;
 }

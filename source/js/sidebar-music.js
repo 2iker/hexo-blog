@@ -216,34 +216,59 @@
 
   load(Math.floor(Math.random() * tracks.length))
 
-  /* ---------- 融入侧边栏 ---------- */
-  var sidebarInner = document.querySelector('.sidebar-inner')
+  /* ---------- ????????? .sidebar ??????????????? ---------- */
   var musicEl = container.closest('.sidebar-music')
-  if (sidebarInner && musicEl && musicEl.parentElement !== sidebarInner) {
-    sidebarInner.appendChild(musicEl)
+
+  function positionPlayer() {
+    var sidebarEl = document.querySelector('.sidebar')
+    if (!sidebarEl || !musicEl) return
+    if (window.innerWidth < 992) {
+      var drawerInner = document.querySelector('.sidebar-inner')
+      if (drawerInner && musicEl.parentElement !== drawerInner) {
+        drawerInner.appendChild(musicEl)
+      }
+    } else {
+      var columnEl = sidebarEl.parentElement
+      if (columnEl && musicEl.parentElement !== columnEl) {
+        columnEl.insertBefore(musicEl, sidebarEl.nextSibling)
+      }
+    }
   }
 
-  var motionOk = window.NexT && NexT.motion && window.CONFIG && CONFIG.motion && CONFIG.motion.enable && typeof Element.prototype.animate === 'function'
+  positionPlayer()
+  window.addEventListener('resize', positionPlayer)
+
+  function revealPlayer() {
+    if (musicEl.classList.contains('animated')) return
+    musicEl.classList.add('animated', 'fadeInUp')
+    musicEl.style.visibility = 'visible'
+  }
+
   var sidebarInner = document.querySelector('.sidebar-inner')
-  if (motionOk && sidebarInner && typeof MutationObserver === 'function') {
+  if (sidebarInner && typeof MutationObserver === 'function') {
     var revealed = false
-    var reveal = function () {
+    var doReveal = function () {
       if (revealed) return
       revealed = true
-      setTimeout(function () { musicEl.classList.add('animated', 'fadeInUp') }, 150)
+      setTimeout(revealPlayer, 150)
     }
     if (sidebarInner.classList.contains('animated')) {
-      reveal()
+      doReveal()
     } else {
       var observer = new MutationObserver(function () {
         if (sidebarInner.classList.contains('animated')) {
           observer.disconnect()
-          reveal()
+          doReveal()
         }
       })
       observer.observe(sidebarInner, { attributes: true, attributeFilter: ['class'] })
+      // ????????????????????????
+      setTimeout(function () {
+        observer.disconnect()
+        doReveal()
+      }, 1200)
     }
   } else {
-    musicEl.style.visibility = 'visible'
+    revealPlayer()
   }
 })()

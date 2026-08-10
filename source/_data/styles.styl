@@ -28,10 +28,6 @@ body {
   overflow: hidden;
 }
 
-.sidebar-toc-active .sidebar-music {
-  display: none;
-}
-
 .sidebar {
   display: flex;
   flex-direction: column;
@@ -40,4 +36,16 @@ body {
 .sidebar-inner {
   flex: 1;
   min-height: 0;
+}
+
+// Sidebar panel: hide its own scrollbar (content fits; wheel/touch scrolling still works)
+.sidebar-panel-container {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.sidebar-panel-container::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }

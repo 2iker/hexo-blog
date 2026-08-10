@@ -181,3 +181,33 @@ if (fs.existsSync(updateFile)) {
     log('update.js: added hexo.generate() after save');
   }
 }
+
+
+// 8. Move the sidebar-music inject to be a sibling of <aside class="sidebar">
+// (direct child of .column) so the player renders as its own card below the
+// sidebar. It is hidden while the TOC panel is active via the :has() rule in
+// source/css/sidebar-music.css.
+const themeSidebarFile = path.join(root, 'node_modules', 'hexo-theme-next', 'layout', '_macro', 'sidebar.njk');
+if (fs.existsSync(themeSidebarFile)) {
+  let t = fs.readFileSync(themeSidebarFile, 'utf8');
+  const injectLine = "{{- next_inject('sidebar') }}";
+  const macroEnd = "</aside>\n{% endmacro %}";
+  const desired = "</aside>\n\n  " + injectLine + "\n{% endmacro %}";
+  if (t.includes(desired)) {
+    log('hexo-theme-next/sidebar.njk: already patched (inject after </aside>)');
+  } else if (t.includes(injectLine)) {
+    // Remove the inject call wherever it currently sits, then re-insert it right
+    // after the closing </aside> so it is a sibling of the sidebar column.
+    t = t.split(injectLine).join('');
+    t = t.replace(/\n[ \t]*\n[ \t]*\n/g, '\n\n');
+    if (t.includes(macroEnd)) {
+      t = t.replace(macroEnd, desired);
+      fs.writeFileSync(themeSidebarFile, t, 'utf8');
+      log('hexo-theme-next/sidebar.njk: sidebar inject moved after </aside> (sibling of .sidebar)');
+    } else {
+      log('hexo-theme-next/sidebar.njk: could not find </aside>; layout differs, skipping');
+    }
+  } else {
+    log('hexo-theme-next/sidebar.njk: inject line not found; layout differs, skipping');
+  }
+}
