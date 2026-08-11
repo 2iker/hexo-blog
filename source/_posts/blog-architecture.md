@@ -1,6 +1,6 @@
 ---
 title: 博客技术架构介绍
-date: 2026-08-09
+date: 2026-08-09 14:00:00
 categories: [技术]
 tags: [Hexo, NexT, 博客搭建, hexo-pro]
 description: 介绍本站的技术架构、hexo-pro 后台管理、自写音乐播放器和部署流程。

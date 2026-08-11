@@ -1,6 +1,6 @@
 ---
 title: Karpathy 的 AI 编程四原则
-date: 2026-08-11
+date: 2026-08-11 16:00:00
 categories: [技术]
 tags: [AI, Claude Code, Karpathy, 编程方法论]
 description: 基于 Andrej Karpathy 对 LLM 编程的观察，提炼出四条实用原则，以及它们如何改变你与 AI 协作的方式。
