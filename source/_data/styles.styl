@@ -55,3 +55,11 @@ body {
     max-height: calc(100vh - 24px);
   }
 }
+
+/* Mobile drawer: let the sidebar content size itself so the player sits
+   right below the panel (no stretched empty space), drawer scrolls as needed */
+@media (max-width: 991px) {
+  .sidebar-inner {
+    flex: none;
+  }
+}
