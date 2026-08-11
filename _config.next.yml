@@ -93,6 +93,11 @@ vendors:
   katex: https://cdn.jsdelivr.net/npm/katex@0.18.1/dist/katex.min.css
   mermaid: https://cdn.jsdelivr.net/npm/mermaid@11.10.1/dist/mermaid.min.js
 
+# Post meta - always show updated_at
+post_meta:
+  updated_at:
+    another_day: false
+
 # Footer
 footer:
   since: 2026
