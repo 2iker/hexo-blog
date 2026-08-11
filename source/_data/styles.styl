@@ -28,6 +28,10 @@ body {
   overflow: hidden;
 }
 
+.sidebar-toc-active .sidebar-music {
+  display: none;
+}
+
 .sidebar {
   display: flex;
   flex-direction: column;
@@ -38,7 +42,22 @@ body {
   min-height: 0;
 }
 
-// Sidebar panel: hide its own scrollbar (content fits; wheel/touch scrolling still works)
+@media (max-width: 767px) {
+  .post-body {
+    font-size: 16px;
+    line-height: 1.8;
+  }
+
+  .post-body h1 { font-size: 1.6em; }
+  .post-body h2 { font-size: 1.4em; }
+  .post-body h3 { font-size: 1.2em; }
+
+  .post-eof {
+    display: none;
+  }
+}
+
+// Sidebar panel: hide its own scrollbar
 .sidebar-panel-container {
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -56,8 +75,6 @@ body {
   }
 }
 
-/* Mobile drawer: let the sidebar content size itself so the player sits
-   right below the panel (no stretched empty space), drawer scrolls as needed */
 @media (max-width: 991px) {
   .sidebar-inner {
     flex: none;
