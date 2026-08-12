@@ -1,16 +1,4 @@
-body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
 
-.main {
-  flex: 1 0 auto;
-}
-
-.footer {
-  flex-shrink: 0;
-}
 
 // Tag cloud: increase contrast so tags are clearly readable
 .tag-cloud a {
@@ -52,8 +40,76 @@ body {
   .post-body h2 { font-size: 1.4em; }
   .post-body h3 { font-size: 1.2em; }
 
+  // 内容区域边距
+  .main-inner {
+    padding: 0 12px;
+  }
+
+  // 代码块不溢出
+  .codeblock pre {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  // 表格不溢出
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  // 图片自适应
+  .post-body img {
+    max-width: 100%;
+    height: auto;
+  }
+
   .post-eof {
     display: none;
+  }
+
+  // 侧边栏全屏覆盖
+  .sidebar {
+    width: 280px;
+    max-width: 85vw;
+  }
+
+  // 侧边栏遮罩
+  .sidebar-dimmer {
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  // 导航菜单项更大触摸区域
+  .menu-item a {
+    padding: 12px 0;
+    font-size: 15px;
+  }
+
+  // 搜索框全宽
+  .search-popup {
+    width: 95%;
+    margin: 10px auto;
+  }
+
+  // 去除点击延迟
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  // 更大的按钮触摸区域
+  .quick-nav-btn {
+    width: 48px;
+    height: 48px;
+  }
+
+  // 进度条更易触摸
+  .sm-bar-wrap {
+    padding: 12px 0;
+  }
+
+  // 音乐控制按钮更大
+  .sm-btn {
+    width: 36px;
+    height: 36px;
   }
 }
 
@@ -78,5 +134,16 @@ body {
 @media (max-width: 991px) {
   .sidebar-inner {
     flex: none;
+  }
+
+  // 移动端 main-inner 确保全宽，防止内容少时收缩
+  .main-inner {
+    width: 100% !important;
+    min-width: 0;
+  }
+
+  // 移动端隐藏水平溢出，防止页面被撑宽
+  body {
+    overflow-x: hidden;
   }
 }

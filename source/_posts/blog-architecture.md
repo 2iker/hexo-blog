@@ -4,7 +4,9 @@ date: 2026-08-09 14:00:00
 categories: [技术]
 tags: [Hexo, NexT, 博客搭建, hexo-pro]
 description: 介绍本站的技术架构、hexo-pro 后台管理、自写音乐播放器和部署流程。
+updated: 2026-08-13
 published: true
+sticky: 10
 ---
 
 # 博客技术架构介绍
@@ -144,6 +146,7 @@ u = u.replace(
 - **进度条**：支持点击跳转和拖拽快进
 - **歌曲列表**：点击直接播放，当前播放高亮
 - **移动端适配**：播放器在侧边栏内，通过汉堡菜单访问
+- **入场动画**：移动端展开侧边栏时触发 fadeInUp 动画
 
 ### 实现原理
 
@@ -172,6 +175,24 @@ hexo.extend.filter.register('server_middleware', (app) => {
 ```
 
 播放器注入后，JS 会自动将 `.sidebar-music` 移入 `.sidebar-inner` 内部，确保在 Pisces 主题的 flex 布局中正确显示。
+
+### 移动端动画修复
+
+移动端点击汉堡菜单展开侧边栏时，播放器会重新触发 fadeInUp 动画。通过 MutationObserver 监听 body 的 `sidebar-active` class 变化，每次展开时移除并重新添加动画类：
+
+```js
+// source/js/sidebar-music.js
+if (window.innerWidth < 992) {
+  var bodyObserver = new MutationObserver(function () {
+    if (document.body.classList.contains('sidebar-active')) {
+      musicEl.classList.remove('animated', 'fadeInUp')
+      void musicEl.offsetWidth  // 强制重排
+      musicEl.classList.add('animated', 'fadeInUp')
+    }
+  })
+  bodyObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] })
+}
+```
 
 ## 音乐管理（hexo-pro 集成）
 
@@ -217,6 +238,24 @@ const url = 'https://music.163.com/song/media/outer/url?id=' + id + '.mp3';
 ### 数据同步
 
 歌曲修改后自动同步到 `source/js/sidebar-music.js`，确保博客侧边栏播放器显示最新歌曲列表。
+
+## 独立音乐项目
+
+除了博客内置的播放器，还有两个独立的音乐工具项目：
+
+### music-api
+
+部署在 Vercel 的 Serverless Function，聚合网易云、QQ 音乐、酷狗、酷我四个平台的搜索结果。整个项目只有一个文件 `api/search.js`，177 行。
+
+```
+GET /api/search?keyword=周杰伦&type=netease&page=1
+```
+
+### html5-music-player
+
+纯静态 HTML5 音乐播放器，基于 APlayer，深色毛玻璃主题。支持搜索、歌词滚动、分页加载，双击 `index.html` 就能用。
+
+两个项目都部署在 Vercel 上，前端调后端 API，零运维成本。详见 [APlayer + 开源 API：音乐播放器搭建笔记](/hexo-blog/2026/08/13/music-api-and-downloader/)。
 
 ## 主题定制
 

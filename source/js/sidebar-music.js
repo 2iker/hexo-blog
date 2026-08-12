@@ -2,7 +2,7 @@
   var container = document.getElementById('sidebar-music-player')
   if (!container) return
 
-  var root = (window.CONFIG && CONFIG.root) || '/hexo-blog/'
+  var root = (window.CONFIG && CONFIG.root) || '/'
 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             var tracks = [
     { name: '烟火里的尘埃', artist: '黄霄雲', url: root + 'music/bg-music.mp3', cover: root + 'music/covers/bg-music.jpg' }
@@ -216,7 +216,7 @@
 
   load(Math.floor(Math.random() * tracks.length))
 
-  /* ---------- ????????? .sidebar ??????????????? ---------- */
+  /* ---------- 根据屏幕宽度动态定位播放器 ---------- */
   var musicEl = container.closest('.sidebar-music')
 
   function positionPlayer() {
@@ -263,7 +263,7 @@
         }
       })
       observer.observe(sidebarInner, { attributes: true, attributeFilter: ['class'] })
-      // ????????????????????????
+      // 超时兜底：动画类始终未添加时仍显示播放器
       setTimeout(function () {
         observer.disconnect()
         doReveal()
@@ -271,5 +271,17 @@
     }
   } else {
     revealPlayer()
+  }
+
+  // 移动端：每次展开 sidebar 时重新触发 fadeInUp 动画
+  if (window.innerWidth < 992) {
+    var bodyObserver = new MutationObserver(function () {
+      if (document.body.classList.contains('sidebar-active')) {
+        musicEl.classList.remove('animated', 'fadeInUp')
+        void musicEl.offsetWidth
+        musicEl.classList.add('animated', 'fadeInUp')
+      }
+    })
+    bodyObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] })
   }
 })()
