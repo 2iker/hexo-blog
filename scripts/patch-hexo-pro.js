@@ -1,3 +1,9 @@
+// Guard: this script is meant to run via `npm install` (postinstall) as a
+// standalone Node script. Hexo auto-loads every .js under scripts/ on startup,
+// and without this guard the top-level process.exit(0) below would kill hexo
+// before it can generate anything.
+if (require.main !== module) return;
+
 const fs = require('fs');
 const path = require('path');
 
